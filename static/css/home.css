@@ -1,0 +1,49 @@
+body {
+    background: linear-gradient(to right, #e6f0ec, #f0f7f9);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h2 {
+    font-weight: 600;
+    color: #005c3c; /* Verde escuro Embrapa */
+}
+
+.btn {
+    border-width: 2px;
+    transition: 0.2s ease-in-out;
+}
+
+.btn-outline-primary {
+    border-color: #007f66;
+    color: #007f66;
+}
+
+.btn-outline-primary:hover {
+    background-color: #007f66;
+    color: #fff;
+}
+
+.btn-outline-success {
+    border-color: #008d4c;
+    color: #008d4c;
+}
+
+.btn-outline-success:hover {
+    background-color: #008d4c;
+    color: #fff;
+}
+
+.btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
