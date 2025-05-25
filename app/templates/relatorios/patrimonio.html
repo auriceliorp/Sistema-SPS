@@ -1,0 +1,141 @@
+{% extends "relatorios/base.html" %}
+
+{% block relatorios_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Relatório de Patrimônio</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('relatorios.index') }}">Relatórios</a></li>
+                <li class="breadcrumb-item active">Patrimônio</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('relatorios.relatorio_patrimonio') }}">
+                <div class="row g-3">
+                    <!-- Grupo de Bem -->
+                    <div class="col-md-4">
+                        <label for="grupo_bem" class="form-label">Grupo de Bem</label>
+                        <select name="grupo_bem" id="grupo_bem" class="form-select">
+                            <option value="">Todos os Grupos</option>
+                            {% for grupo in grupos %}
+                            <option value="{{ grupo.nome }}">{{ grupo.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Detentor -->
+                    <div class="col-md-4">
+                        <label for="detentor_id" class="form-label">Detentor</label>
+                        <select name="detentor_id" id="detentor_id" class="form-select">
+                            <option value="">Todos os Detentores</option>
+                            {% for usuario in usuarios %}
+                            <option value="{{ usuario.id }}">{{ usuario.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Localização -->
+                    <div class="col-md-4">
+                        <label for="localizacao" class="form-label">Localização</label>
+                        <input type="text" class="form-control" id="localizacao" name="localizacao" placeholder="Digite a localização">
+                    </div>
+                </div>
+
+                <!-- Opções do Relatório -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5>Opções do Relatório</h5>
+                        <hr>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_depreciacao" name="incluir_depreciacao" checked>
+                            <label class="form-check-label" for="incluir_depreciacao">
+                                Incluir cálculo de depreciação
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_historico" name="incluir_historico">
+                            <label class="form-check-label" for="incluir_historico">
+                                Incluir histórico de movimentações
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_grafico" name="incluir_grafico" checked>
+                            <label class="form-check-label" for="incluir_grafico">
+                                Incluir gráficos de distribuição
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_fotos" name="incluir_fotos">
+                            <label class="form-check-label" for="incluir_fotos">
+                                Incluir fotos dos bens
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status dos Bens -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5>Status dos Bens</h5>
+                        <hr>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" id="status_ativo" name="status[]" value="ATIVO" checked>
+                            <label class="form-check-label" for="status_ativo">Ativo</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" id="status_inativo" name="status[]" value="INATIVO">
+                            <label class="form-check-label" for="status_inativo">Inativo</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" id="status_manutencao" name="status[]" value="MANUTENCAO">
+                            <label class="form-check-label" for="status_manutencao">Em Manutenção</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" id="status_baixado" name="status[]" value="BAIXADO">
+                            <label class="form-check-label" for="status_baixado">Baixado</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-excel me-2"></i>
+                        Gerar Relatório
+                    </button>
+                    <button type="reset" class="btn btn-secondary ms-2">
+                        <i class="fas fa-undo me-2"></i>
+                        Limpar Filtros
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Instruções -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">
+                <i class="fas fa-info-circle text-info"></i>
+                Informações sobre o Relatório
+            </h5>
+            <ul class="mb-0">
+                <li>O relatório inclui todos os bens patrimoniais cadastrados no sistema.</li>
+                <li>A depreciação é calculada conforme as regras contábeis vigentes.</li>
+                <li>O histórico de movimentações mostra as transferências entre detentores/locais.</li>
+                <li>Os gráficos apresentam distribuição por grupo, status e valor.</li>
+                <li>As fotos dos bens são incluídas em miniatura quando disponíveis.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %} 

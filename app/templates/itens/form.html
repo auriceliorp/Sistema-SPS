@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ titulo }}</h2>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{{ url_for('almoxarifado.index') }}">Almoxarifado</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('almoxarifado.listar_itens') }}">Itens</a></li>
+        <li class="breadcrumb-item active">{{ titulo }}</li>
+      </ol>
+    </nav>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="POST" class="row g-3">
+        {{ form.csrf_token }}
+        
+        <!-- Informações Básicas -->
+        <div class="col-md-3">
+          {{ form.codigo.label(class="form-label") }}
+          {{ form.codigo(class="form-control") }}
+          {% if form.codigo.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.codigo.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="col-md-9">
+          {{ form.nome.label(class="form-label") }}
+          {{ form.nome(class="form-control") }}
+          {% if form.nome.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.nome.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Classificação -->
+        <div class="col-md-4">
+          {{ form.grupo_id.label(class="form-label") }}
+          {{ form.grupo_id(class="form-select") }}
+          {% if form.grupo_id.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.grupo_id.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="col-md-4">
+          {{ form.unidade_medida.label(class="form-label") }}
+          {{ form.unidade_medida(class="form-select") }}
+          {% if form.unidade_medida.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.unidade_medida.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="col-md-4">
+          {{ form.natureza_despesa_id.label(class="form-label") }}
+          {{ form.natureza_despesa_id(class="form-select") }}
+          {% if form.natureza_despesa_id.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.natureza_despesa_id.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Controle de Estoque -->
+        <div class="col-md-4">
+          {{ form.estoque_minimo.label(class="form-label") }}
+          {{ form.estoque_minimo(class="form-control") }}
+          {% if form.estoque_minimo.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.estoque_minimo.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="col-md-4">
+          {{ form.estoque_maximo.label(class="form-label") }}
+          {{ form.estoque_maximo(class="form-control") }}
+          {% if form.estoque_maximo.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.estoque_maximo.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="col-md-4">
+          {{ form.ponto_pedido.label(class="form-label") }}
+          {{ form.ponto_pedido(class="form-control") }}
+          {% if form.ponto_pedido.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.ponto_pedido.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Descrição -->
+        <div class="col-12">
+          {{ form.descricao.label(class="form-label") }}
+          {{ form.descricao(class="form-control", rows="3") }}
+          {% if form.descricao.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.descricao.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Botões -->
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-2"></i>Salvar
+          </button>
+          <a href="{{ url_for('almoxarifado.listar_itens') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-x-lg me-2"></i>Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %} 

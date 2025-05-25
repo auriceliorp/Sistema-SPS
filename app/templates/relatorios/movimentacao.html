@@ -1,0 +1,149 @@
+{% extends "relatorios/base.html" %}
+
+{% block relatorios_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Relatório de Movimentação</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('relatorios.index') }}">Relatórios</a></li>
+                <li class="breadcrumb-item active">Movimentação</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('relatorios.relatorio_movimentacao') }}">
+                <div class="row g-3">
+                    <!-- Período -->
+                    <div class="col-md-6">
+                        <label for="data_inicio" class="form-label">Data Início</label>
+                        <input type="date" class="form-control" id="data_inicio" name="data_inicio" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="data_fim" class="form-label">Data Fim</label>
+                        <input type="date" class="form-control" id="data_fim" name="data_fim" required>
+                    </div>
+
+                    <!-- Tipo de Movimento -->
+                    <div class="col-md-6">
+                        <label for="tipo_movimento" class="form-label">Tipo de Movimento</label>
+                        <select name="tipo_movimento" id="tipo_movimento" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="entrada">Entradas</option>
+                            <option value="saida">Saídas</option>
+                        </select>
+                    </div>
+
+                    <!-- Opções de Agrupamento -->
+                    <div class="col-md-6">
+                        <label for="agrupar_por" class="form-label">Agrupar por</label>
+                        <select name="agrupar_por" id="agrupar_por" class="form-select">
+                            <option value="data">Data</option>
+                            <option value="item">Item</option>
+                            <option value="fornecedor">Fornecedor</option>
+                            <option value="requisitante">Requisitante</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Opções do Relatório -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5>Opções do Relatório</h5>
+                        <hr>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_detalhes" name="incluir_detalhes" checked>
+                            <label class="form-check-label" for="incluir_detalhes">
+                                Incluir detalhes dos itens
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_notas" name="incluir_notas" checked>
+                            <label class="form-check-label" for="incluir_notas">
+                                Incluir números de notas fiscais
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_grafico" name="incluir_grafico" checked>
+                            <label class="form-check-label" for="incluir_grafico">
+                                Incluir gráficos de análise
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_resumo" name="incluir_resumo" checked>
+                            <label class="form-check-label" for="incluir_resumo">
+                                Incluir resumo por período
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-excel me-2"></i>
+                        Gerar Relatório
+                    </button>
+                    <button type="reset" class="btn btn-secondary ms-2">
+                        <i class="fas fa-undo me-2"></i>
+                        Limpar Filtros
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Instruções -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">
+                <i class="fas fa-info-circle text-info"></i>
+                Informações sobre o Relatório
+            </h5>
+            <ul class="mb-0">
+                <li>O período máximo permitido é de 12 meses.</li>
+                <li>Os valores são calculados com base nos preços das movimentações.</li>
+                <li>O agrupamento afeta a forma como os dados são organizados no relatório.</li>
+                <li>Os gráficos incluem análise de tendência e comparativos.</li>
+                <li>O resumo por período apresenta totais e médias mensais.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Define data máxima como hoje
+    const hoje = new Date().toISOString().split('T')[0];
+    document.getElementById('data_fim').max = hoje;
+    
+    // Define data mínima como 1 ano atrás
+    const umAnoAtras = new Date();
+    umAnoAtras.setFullYear(umAnoAtras.getFullYear() - 1);
+    document.getElementById('data_inicio').min = umAnoAtras.toISOString().split('T')[0];
+    
+    // Define valores iniciais
+    document.getElementById('data_fim').value = hoje;
+    document.getElementById('data_inicio').value = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0];
+    
+    // Validação do período
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const inicio = new Date(document.getElementById('data_inicio').value);
+        const fim = new Date(document.getElementById('data_fim').value);
+        const diffMeses = (fim.getFullYear() - inicio.getFullYear()) * 12 + fim.getMonth() - inicio.getMonth();
+        
+        if (diffMeses > 12) {
+            e.preventDefault();
+            alert('O período máximo permitido é de 12 meses.');
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

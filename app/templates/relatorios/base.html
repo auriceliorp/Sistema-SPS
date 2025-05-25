@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'relatorios.index' %}active{% endif %}" 
+                           href="{{ url_for('relatorios.index') }}">
+                            <i class="fas fa-chart-bar"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'relatorios.relatorio_estoque' %}active{% endif %}"
+                           href="{{ url_for('relatorios.relatorio_estoque') }}">
+                            <i class="fas fa-boxes"></i> Estoque
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'relatorios.relatorio_movimentacao' %}active{% endif %}"
+                           href="{{ url_for('relatorios.relatorio_movimentacao') }}">
+                            <i class="fas fa-exchange-alt"></i> Movimentação
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'relatorios.relatorio_patrimonio' %}active{% endif %}"
+                           href="{{ url_for('relatorios.relatorio_patrimonio') }}">
+                            <i class="fas fa-laptop"></i> Patrimônio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'relatorios.relatorio_fornecedores' %}active{% endif %}"
+                           href="{{ url_for('relatorios.relatorio_fornecedores') }}">
+                            <i class="fas fa-truck"></i> Fornecedores
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Conteúdo Principal -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            {% block relatorios_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.sidebar {
+    min-height: calc(100vh - 56px);
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar .nav-link {
+    color: #333;
+    padding: .5rem 1rem;
+}
+
+.sidebar .nav-link.active {
+    color: #007bff;
+    background-color: rgba(0, 123, 255, .1);
+}
+
+.sidebar .nav-link:hover {
+    color: #007bff;
+}
+
+.sidebar .nav-link i {
+    margin-right: .5rem;
+}
+
+.report-card {
+    transition: transform 0.2s;
+}
+
+.report-card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %} 

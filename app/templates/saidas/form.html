@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+      <i class="bi bi-box-arrow-right me-2"></i>
+      {{ titulo }}
+    </h2>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{{ url_for('almoxarifado.index') }}">Almoxarifado</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('almoxarifado.listar_saidas') }}">Saídas</a></li>
+        <li class="breadcrumb-item active">{{ titulo }}</li>
+      </ol>
+    </nav>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="POST" class="row g-3" id="formSaida">
+        {{ form.csrf_token }}
+        
+        <!-- Informações do Documento -->
+        <div class="col-md-3">
+          {{ form.tipo_documento.label(class="form-label") }}
+          {{ form.tipo_documento(class="form-select") }}
+          {% if form.tipo_documento.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.tipo_documento.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="col-md-3">
+          {{ form.numero_documento.label(class="form-label") }}
+          {{ form.numero_documento(class="form-control") }}
+          {% if form.numero_documento.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.numero_documento.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="col-md-3">
+          {{ form.data_documento.label(class="form-label") }}
+          {{ form.data_documento(class="form-control", type="date") }}
+          {% if form.data_documento.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.data_documento.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="col-md-3">
+          {{ form.local_id.label(class="form-label") }}
+          {{ form.local_id(class="form-select") }}
+          {% if form.local_id.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.local_id.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Itens -->
+        <div class="col-12">
+          <h5 class="mb-3">Itens</h5>
+          <div class="table-responsive">
+            <table class="table table-hover" id="tabelaItens">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 40%">Item</th>
+                  <th style="width: 15%">Saldo</th>
+                  <th style="width: 20%">Quantidade</th>
+                  <th style="width: 20%">Valor Total</th>
+                  <th style="width: 5%"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item_form in form.itens %}
+                <tr class="linha-item">
+                  <td>
+                    {{ item_form.item_id(class="form-select item-select") }}
+                    {% if item_form.item_id.errors %}
+                    <div class="invalid-feedback d-block">
+                      {% for error in item_form.item_id.errors %}
+                      <span>{{ error }}</span>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="input-group">
+                      <input type="text" class="form-control saldo-disponivel" readonly>
+                      <span class="input-group-text unidade-medida"></span>
+                    </div>
+                  </td>
+                  <td>
+                    {{ item_form.quantidade(class="form-control quantidade") }}
+                    {% if item_form.quantidade.errors %}
+                    <div class="invalid-feedback d-block">
+                      {% for error in item_form.quantidade.errors %}
+                      <span>{{ error }}</span>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="input-group">
+                      <span class="input-group-text">R$</span>
+                      <input type="text" class="form-control valor-total" readonly>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-outline-danger remover-item">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="5">
+                    <button type="button" class="btn btn-outline-primary" id="adicionarItem">
+                      <i class="bi bi-plus-lg me-2"></i>Adicionar Item
+                    </button>
+                  </td>
+                </tr>
+                <tr class="table-light">
+                  <td colspan="3" class="text-end fw-bold">Total Geral:</td>
+                  <td>
+                    <div class="input-group">
+                      <span class="input-group-text">R$</span>
+                      <input type="text" class="form-control" id="totalGeral" readonly>
+                    </div>
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Observações -->
+        <div class="col-12">
+          {{ form.observacao.label(class="form-label") }}
+          {{ form.observacao(class="form-control", rows="3") }}
+          {% if form.observacao.errors %}
+          <div class="invalid-feedback d-block">
+            {% for error in form.observacao.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Botões -->
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-2"></i>Salvar
+          </button>
+          <a href="{{ url_for('almoxarifado.listar_saidas') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-x-lg me-2"></i>Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+// Template para nova linha de item
+const templateItem = `
+<tr class="linha-item">
+  <td>
+    <select class="form-select item-select" name="itens-{index}-item_id" required>
+      <option value="">Selecione um item...</option>
+      {% for item in itens %}
+      <option value="{{ item.id }}" 
+              data-unidade="{{ item.unidade_medida }}"
+              data-saldo="{{ item.saldo }}"
+              data-valor="{{ item.valor_medio }}">
+        {{ item.codigo }} - {{ item.nome }}
+      </option>
+      {% endfor %}
+    </select>
+  </td>
+  <td>
+    <div class="input-group">
+      <input type="text" class="form-control saldo-disponivel" readonly>
+      <span class="input-group-text unidade-medida"></span>
+    </div>
+  </td>
+  <td>
+    <input type="number" class="form-control quantidade" name="itens-{index}-quantidade" 
+           step="0.01" min="0.01" required>
+  </td>
+  <td>
+    <div class="input-group">
+      <span class="input-group-text">R$</span>
+      <input type="text" class="form-control valor-total" readonly>
+    </div>
+  </td>
+  <td class="text-center">
+    <button type="button" class="btn btn-sm btn-outline-danger remover-item">
+      <i class="bi bi-trash"></i>
+    </button>
+  </td>
+</tr>
+`;
+
+// Função para atualizar informações do item selecionado
+function atualizarInformacoesItem(linha) {
+  const select = linha.querySelector('.item-select');
+  const option = select.selectedOptions[0];
+  
+  if (option && option.value) {
+    const saldo = parseFloat(option.dataset.saldo);
+    const unidade = option.dataset.unidade;
+    const valor = parseFloat(option.dataset.valor);
+    
+    linha.querySelector('.saldo-disponivel').value = saldo.toFixed(2);
+    linha.querySelector('.unidade-medida').textContent = unidade;
+    
+    // Atualiza o valor máximo da quantidade
+    const inputQuantidade = linha.querySelector('.quantidade');
+    inputQuantidade.max = saldo;
+    
+    // Recalcula o valor total
+    calcularValorTotal(linha, valor);
+  } else {
+    linha.querySelector('.saldo-disponivel').value = '';
+    linha.querySelector('.unidade-medida').textContent = '';
+    linha.querySelector('.valor-total').value = '';
+  }
+}
+
+// Função para calcular o valor total de um item
+function calcularValorTotal(linha, valorUnitario) {
+  const quantidade = parseFloat(linha.querySelector('.quantidade').value) || 0;
+  const valorTotal = quantidade * valorUnitario;
+  linha.querySelector('.valor-total').value = valorTotal.toFixed(2);
+  return valorTotal;
+}
+
+// Função para calcular o total geral
+function calcularTotalGeral() {
+  let total = 0;
+  document.querySelectorAll('.linha-item').forEach(linha => {
+    const select = linha.querySelector('.item-select');
+    const option = select.selectedOptions[0];
+    if (option && option.value) {
+      const valor = parseFloat(option.dataset.valor);
+      total += calcularValorTotal(linha, valor);
+    }
+  });
+  document.getElementById('totalGeral').value = total.toFixed(2);
+}
+
+// Adicionar novo item
+document.getElementById('adicionarItem').addEventListener('click', () => {
+  const tbody = document.querySelector('#tabelaItens tbody');
+  const index = tbody.children.length;
+  const novaLinha = templateItem.replace(/{index}/g, index);
+  tbody.insertAdjacentHTML('beforeend', novaLinha);
+});
+
+// Remover item
+document.querySelector('#tabelaItens').addEventListener('click', (e) => {
+  if (e.target.closest('.remover-item')) {
+    e.target.closest('.linha-item').remove();
+    calcularTotalGeral();
+  }
+});
+
+// Atualizar valores ao alterar item ou quantidade
+document.querySelector('#tabelaItens').addEventListener('change', (e) => {
+  if (e.target.matches('.item-select')) {
+    const linha = e.target.closest('.linha-item');
+    atualizarInformacoesItem(linha);
+    calcularTotalGeral();
+  }
+});
+
+document.querySelector('#tabelaItens').addEventListener('input', (e) => {
+  if (e.target.matches('.quantidade')) {
+    const linha = e.target.closest('.linha-item');
+    const select = linha.querySelector('.item-select');
+    const option = select.selectedOptions[0];
+    
+    if (option && option.value) {
+      const valor = parseFloat(option.dataset.valor);
+      calcularValorTotal(linha, valor);
+      calcularTotalGeral();
+      
+      // Validação de quantidade máxima
+      const quantidade = parseFloat(e.target.value);
+      const saldo = parseFloat(option.dataset.saldo);
+      
+      if (quantidade > saldo) {
+        e.target.value = saldo;
+        alert('A quantidade não pode ser maior que o saldo disponível.');
+        calcularValorTotal(linha, valor);
+        calcularTotalGeral();
+      }
+    }
+  }
+});
+
+// Inicializar valores
+document.querySelectorAll('.linha-item').forEach(linha => {
+  atualizarInformacoesItem(linha);
+});
+calcularTotalGeral();
+</script>
+{% endblock %}
+{% endblock %} 

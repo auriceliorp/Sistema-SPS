@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Dashboard</h1>
+    
+    <div class="row mt-4">
+        <!-- Estatísticas Gerais -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total de Itens</h5>
+                    <h2 class="card-text">{{ total_itens }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total de Bens Patrimoniais</h5>
+                    <h2 class="card-text">{{ total_bens }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Itens com Baixo Estoque</h5>
+                    <h2 class="card-text">{{ itens_baixo_estoque|length }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Últimas Movimentações -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Últimas Entradas</h5>
+                    <div class="list-group">
+                        {% for entrada in ultimas_entradas %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ entrada.numero_nota }}</h6>
+                                <small>{{ entrada.data_movimento.strftime('%d/%m/%Y') }}</small>
+                            </div>
+                            <p class="mb-1">Fornecedor: {{ entrada.fornecedor }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Últimas Saídas</h5>
+                    <div class="list-group">
+                        {% for saida in ultimas_saidas %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ saida.numero_requisicao }}</h6>
+                                <small>{{ saida.data_movimento.strftime('%d/%m/%Y') }}</small>
+                            </div>
+                            <p class="mb-1">Requisitante: {{ saida.requisitante }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Itens com Baixo Estoque -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Itens com Baixo Estoque</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descrição</th>
+                                    <th>Estoque Atual</th>
+                                    <th>Estoque Mínimo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in itens_baixo_estoque %}
+                                <tr>
+                                    <td>{{ item.codigo }}</td>
+                                    <td>{{ item.descricao }}</td>
+                                    <td>{{ item.quantidade_atual }}</td>
+                                    <td>{{ item.estoque_minimo }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

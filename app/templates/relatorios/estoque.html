@@ -1,0 +1,109 @@
+{% extends "relatorios/base.html" %}
+
+{% block relatorios_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Relatório de Estoque</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('relatorios.index') }}">Relatórios</a></li>
+                <li class="breadcrumb-item active">Estoque</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('relatorios.relatorio_estoque') }}">
+                <div class="row g-3">
+                    <!-- Grupo -->
+                    <div class="col-md-6">
+                        <label for="grupo_id" class="form-label">Grupo de Material</label>
+                        <select name="grupo_id" id="grupo_id" class="form-select">
+                            <option value="">Todos os Grupos</option>
+                            {% for grupo in grupos %}
+                            <option value="{{ grupo.id }}">{{ grupo.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Filtro de Estoque Mínimo -->
+                    <div class="col-md-6">
+                        <label class="form-label d-block">&nbsp;</label>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="abaixo_minimo" name="abaixo_minimo">
+                            <label class="form-check-label" for="abaixo_minimo">
+                                Mostrar apenas itens abaixo do estoque mínimo
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opções do Relatório -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5>Opções do Relatório</h5>
+                        <hr>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_valor" name="incluir_valor" checked>
+                            <label class="form-check-label" for="incluir_valor">
+                                Incluir valores monetários
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_movimentacoes" name="incluir_movimentacoes">
+                            <label class="form-check-label" for="incluir_movimentacoes">
+                                Incluir últimas movimentações
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_grafico" name="incluir_grafico" checked>
+                            <label class="form-check-label" for="incluir_grafico">
+                                Incluir gráficos
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_resumo" name="incluir_resumo" checked>
+                            <label class="form-check-label" for="incluir_resumo">
+                                Incluir resumo estatístico
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-excel me-2"></i>
+                        Gerar Relatório
+                    </button>
+                    <button type="reset" class="btn btn-secondary ms-2">
+                        <i class="fas fa-undo me-2"></i>
+                        Limpar Filtros
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Instruções -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">
+                <i class="fas fa-info-circle text-info"></i>
+                Informações sobre o Relatório
+            </h5>
+            <ul class="mb-0">
+                <li>O relatório será gerado em formato Excel (.xlsx).</li>
+                <li>Os valores monetários são calculados com base no custo médio dos itens.</li>
+                <li>O estoque mínimo é baseado nas configurações de cada item.</li>
+                <li>Os gráficos incluem análise de distribuição por grupo e curva ABC.</li>
+                <li>O resumo estatístico apresenta totais, médias e indicadores relevantes.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %} 

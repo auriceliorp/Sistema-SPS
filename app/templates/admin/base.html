@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'admin.index' %}active{% endif %}" 
+                           href="{{ url_for('admin.index') }}">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'admin.listar_usuarios' %}active{% endif %}"
+                           href="{{ url_for('admin.listar_usuarios') }}">
+                            <i class="fas fa-users"></i> Usuários
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'admin.listar_perfis' %}active{% endif %}"
+                           href="{{ url_for('admin.listar_perfis') }}">
+                            <i class="fas fa-user-tag"></i> Perfis
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'admin.listar_locais' %}active{% endif %}"
+                           href="{{ url_for('admin.listar_locais') }}">
+                            <i class="fas fa-map-marker-alt"></i> Locais
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'admin.listar_unidades' %}active{% endif %}"
+                           href="{{ url_for('admin.listar_unidades') }}">
+                            <i class="fas fa-building"></i> Unidades
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'admin.logs_auditoria' %}active{% endif %}"
+                           href="{{ url_for('admin.logs_auditoria') }}">
+                            <i class="fas fa-history"></i> Logs de Auditoria
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Conteúdo Principal -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            {% block admin_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.sidebar {
+    min-height: calc(100vh - 56px);
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar .nav-link {
+    color: #333;
+    padding: .5rem 1rem;
+}
+
+.sidebar .nav-link.active {
+    color: #007bff;
+    background-color: rgba(0, 123, 255, .1);
+}
+
+.sidebar .nav-link:hover {
+    color: #007bff;
+}
+
+.sidebar .nav-link i {
+    margin-right: .5rem;
+}
+</style>
+{% endblock %} 

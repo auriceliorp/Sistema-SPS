@@ -1,0 +1,81 @@
+{% extends "relatorios/base.html" %}
+
+{% block relatorios_content %}
+<div class="container-fluid py-4">
+    <h2 class="mb-4">Relatórios</h2>
+
+    <div class="row g-4">
+        <!-- Relatório de Estoque -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 report-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-boxes fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Estoque</h5>
+                    <p class="card-text">Relatório de itens em estoque, saldos e valores.</p>
+                    <a href="{{ url_for('relatorios.relatorio_estoque') }}" class="btn btn-primary">
+                        Gerar Relatório
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relatório de Movimentação -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 report-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-exchange-alt fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Movimentação</h5>
+                    <p class="card-text">Entradas e saídas de materiais por período.</p>
+                    <a href="{{ url_for('relatorios.relatorio_movimentacao') }}" class="btn btn-success">
+                        Gerar Relatório
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relatório de Patrimônio -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 report-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-laptop fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Patrimônio</h5>
+                    <p class="card-text">Inventário de bens patrimoniais e localização.</p>
+                    <a href="{{ url_for('relatorios.relatorio_patrimonio') }}" class="btn btn-info">
+                        Gerar Relatório
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relatório de Fornecedores -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 report-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-truck fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">Fornecedores</h5>
+                    <p class="card-text">Análise de fornecedores e compras realizadas.</p>
+                    <a href="{{ url_for('relatorios.relatorio_fornecedores') }}" class="btn btn-warning">
+                        Gerar Relatório
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instruções -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">
+                <i class="fas fa-info-circle"></i> 
+                Instruções
+            </h5>
+            <ul class="mb-0">
+                <li>Selecione o tipo de relatório que deseja gerar clicando em um dos cards acima.</li>
+                <li>Na página seguinte, você poderá aplicar filtros específicos para o relatório.</li>
+                <li>Os relatórios são gerados em formato Excel (.xlsx) para fácil manipulação.</li>
+                <li>Você pode salvar os relatórios gerados para consulta posterior.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %} 

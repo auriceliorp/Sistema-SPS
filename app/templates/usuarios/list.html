@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+      <i class="bi bi-people me-2"></i>
+      Usuários do Sistema
+    </h2>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.index') }}">Administração</a></li>
+        <li class="breadcrumb-item active">Usuários</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="GET" class="row g-3">
+        <div class="col-md-4">
+          <label for="busca" class="form-label">Busca</label>
+          <input type="text" class="form-control" id="busca" name="busca" 
+                 value="{{ request.args.get('busca', '') }}" 
+                 placeholder="Nome, email ou username">
+        </div>
+
+        <div class="col-md-3">
+          <label for="permissao" class="form-label">Permissão</label>
+          <select name="permissao" id="permissao" class="form-select">
+            <option value="">Todas</option>
+            <option value="admin" {% if request.args.get('permissao') == 'admin' %}selected{% endif %}>
+              Administrador
+            </option>
+            <option value="almoxarifado" {% if request.args.get('permissao') == 'almoxarifado' %}selected{% endif %}>
+              Almoxarifado
+            </option>
+            <option value="patrimonio" {% if request.args.get('permissao') == 'patrimonio' %}selected{% endif %}>
+              Patrimônio
+            </option>
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label for="status" class="form-label">Status</label>
+          <select name="status" id="status" class="form-select">
+            <option value="">Todos</option>
+            <option value="ativo" {% if request.args.get('status') == 'ativo' %}selected{% endif %}>
+              Ativos
+            </option>
+            <option value="inativo" {% if request.args.get('status') == 'inativo' %}selected{% endif %}>
+              Inativos
+            </option>
+          </select>
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+          <div class="btn-group w-100">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-search me-2"></i>Filtrar
+            </button>
+            <a href="{{ url_for('admin.listar_usuarios') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-counterclockwise"></i>
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-end mb-3">
+        <a href="{{ url_for('admin.novo_usuario') }}" class="btn btn-success">
+          <i class="bi bi-plus-lg me-2"></i>Novo Usuário
+        </a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Nome</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Permissões</th>
+              <th class="text-center">Status</th>
+              <th>Último Acesso</th>
+              <th class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+              <td>{{ usuario.nome }}</td>
+              <td>{{ usuario.username }}</td>
+              <td>{{ usuario.email }}</td>
+              <td>
+                {% if usuario.permissao_admin %}
+                <span class="badge bg-danger">Admin</span>
+                {% endif %}
+                {% if usuario.permissao_almoxarifado %}
+                <span class="badge bg-primary">Almoxarifado</span>
+                {% endif %}
+                {% if usuario.permissao_patrimonio %}
+                <span class="badge bg-success">Patrimônio</span>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                {% if usuario.ativo %}
+                <span class="badge bg-success">Ativo</span>
+                {% else %}
+                <span class="badge bg-danger">Inativo</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if usuario.ultimo_acesso %}
+                {{ usuario.ultimo_acesso.strftime('%d/%m/%Y %H:%M') }}
+                {% else %}
+                <span class="text-muted">Nunca acessou</span>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                <div class="btn-group">
+                  <a href="{{ url_for('admin.editar_usuario', id=usuario.id) }}" 
+                     class="btn btn-sm btn-outline-primary" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button type="button" class="btn btn-sm btn-outline-danger" title="Excluir"
+                          onclick="confirmarExclusao('{{ url_for('admin.excluir_usuario', id=usuario.id) }}')">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginação -->
+      {% if pagination %}
+      <nav aria-label="Navegação de páginas" class="mt-4">
+        <ul class="pagination justify-content-center">
+          {% for page in pagination.iter_pages() %}
+          {% if page %}
+          <li class="page-item {% if page == pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('admin.listar_usuarios', page=page, **request.args) }}">
+              {{ page }}
+            </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div class="modal fade" id="modalConfirmacao" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir este usuário?</p>
+        <p class="text-danger mb-0">Esta ação não poderá ser desfeita.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form id="formExclusao" method="POST" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger">Excluir</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+function confirmarExclusao(url) {
+  document.getElementById('formExclusao').action = url;
+  new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+}
+</script>
+{% endblock %}
+{% endblock %} 

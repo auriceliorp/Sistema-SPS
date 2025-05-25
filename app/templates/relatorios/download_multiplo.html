@@ -1,0 +1,67 @@
+{% extends "relatorios/base.html" %}
+
+{% block relatorios_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Download de Relatórios</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('relatorios.index') }}">Relatórios</a></li>
+                <li class="breadcrumb-item active">Download</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-4">
+                <i class="fas fa-download text-primary"></i>
+                Arquivos Disponíveis para Download
+            </h5>
+
+            <div class="list-group">
+                {% for tipo, arquivo in arquivos %}
+                <div class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">Relatório de {{ tipo|title }}</h6>
+                            <small class="text-muted">
+                                Gerado em {{ now().strftime('%d/%m/%Y às %H:%M') }}
+                            </small>
+                        </div>
+                        <a href="{{ url_for('relatorios.download', arquivo=arquivo) }}" 
+                           class="btn btn-primary btn-sm">
+                            <i class="fas fa-file-excel me-2"></i>
+                            Download
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-4">
+                <a href="{{ url_for('relatorios.relatorio_movimentacao') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instruções -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">
+                <i class="fas fa-info-circle text-info"></i>
+                Informações
+            </h5>
+            <ul class="mb-0">
+                <li>Os arquivos estão no formato Excel (.xlsx).</li>
+                <li>Você pode baixar cada arquivo individualmente.</li>
+                <li>Os arquivos ficarão disponíveis por 24 horas.</li>
+                <li>Após o download, salve os arquivos em local seguro.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %} 

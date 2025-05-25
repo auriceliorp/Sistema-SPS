@@ -1,0 +1,365 @@
+{% extends 'base_simplificada.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+      <i class="bi bi-calendar-check me-2"></i>
+      Mapa de Fechamento Mensal
+    </h2>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{{ url_for('relatorios.index') }}">Relatórios</a></li>
+        <li class="breadcrumb-item active">Mapa de Fechamento</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Filtros e Opções -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="get" class="row g-3">
+        <!-- Período -->
+        <div class="col-md-3">
+          <label for="mes" class="form-label">Mês</label>
+          <select name="mes" id="mes" class="form-select" required>
+            {% for i in range(1, 13) %}
+            <option value="{{ i }}" {% if i == mes %}selected{% endif %}>
+              {{ meses[i-1] }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="ano" class="form-label">Ano</label>
+          <select name="ano" id="ano" class="form-select" required>
+            {% for a in anos_disponiveis %}
+            <option value="{{ a }}" {% if a == ano %}selected{% endif %}>{{ a }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Opções de Visualização -->
+        <div class="col-md-3">
+          <label for="agrupamento" class="form-label">Agrupar por</label>
+          <select name="agrupamento" id="agrupamento" class="form-select">
+            <option value="nd">Natureza de Despesa</option>
+            <option value="grupo">Grupo de Material</option>
+            <option value="subgrupo">Subgrupo</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="ordenacao" class="form-label">Ordenar por</label>
+          <select name="ordenacao" id="ordenacao" class="form-select">
+            <option value="codigo">Código</option>
+            <option value="nome">Nome</option>
+            <option value="valor_desc">Maior Valor</option>
+            <option value="valor_asc">Menor Valor</option>
+          </select>
+        </div>
+
+        <!-- Opções Adicionais -->
+        <div class="col-12">
+          <div class="form-check form-check-inline">
+            <input type="checkbox" class="form-check-input" id="mostrar_zerados" name="mostrar_zerados">
+            <label class="form-check-label" for="mostrar_zerados">Mostrar itens zerados</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input type="checkbox" class="form-check-input" id="mostrar_detalhes" name="mostrar_detalhes">
+            <label class="form-check-label" for="mostrar_detalhes">Mostrar detalhes de movimentação</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input type="checkbox" class="form-check-input" id="incluir_grafico" name="incluir_grafico" checked>
+            <label class="form-check-label" for="incluir_grafico">Incluir gráficos</label>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search me-2"></i>Aplicar Filtros
+          </button>
+          <button type="reset" class="btn btn-outline-secondary ms-2">
+            <i class="bi bi-arrow-counterclockwise me-2"></i>Limpar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="row mb-4">
+    <!-- Cards de Totais -->
+    <div class="col-md-8">
+      <div class="row g-3">
+        <div class="col-md-3 col-6">
+          <div class="card border-secondary h-100 shadow-sm rounded-4">
+            <div class="card-body">
+              <h6 class="card-subtitle mb-2 text-muted">Saldo Inicial</h6>
+              <h4 class="card-title mb-0">R$ {{ '{:,.2f}'.format(total_saldo_inicial).replace(',', '.') }}</h4>
+              <small class="text-muted">Em {{ '%02d'|format(mes) }}/{{ ano }}</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="card border-success h-100 shadow-sm rounded-4">
+            <div class="card-body">
+              <h6 class="card-subtitle mb-2 text-muted">Entradas</h6>
+              <h4 class="card-title mb-0 text-success">R$ {{ '{:,.2f}'.format(total_entradas).replace(',', '.') }}</h4>
+              <small class="text-success">+{{ ((total_entradas/total_saldo_inicial)*100)|round(1) }}% do saldo</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="card border-danger h-100 shadow-sm rounded-4">
+            <div class="card-body">
+              <h6 class="card-subtitle mb-2 text-muted">Saídas</h6>
+              <h4 class="card-title mb-0 text-danger">R$ {{ '{:,.2f}'.format(total_saidas).replace(',', '.') }}</h4>
+              <small class="text-danger">-{{ ((total_saidas/total_saldo_inicial)*100)|round(1) }}% do saldo</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="card border-primary h-100 shadow-sm rounded-4">
+            <div class="card-body">
+              <h6 class="card-subtitle mb-2 text-muted">Saldo Final</h6>
+              <h4 class="card-title mb-0 {% if total_saldo_final < 0 %}text-danger{% else %}text-primary{% endif %}">
+                R$ {{ '{:,.2f}'.format(total_saldo_final).replace(',', '.') }}
+              </h4>
+              <small class="{% if total_saldo_final < 0 %}text-danger{% else %}text-primary{% endif %}">
+                {{ ((total_saldo_final/total_saldo_inicial)*100)|round(1) }}% do inicial
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico de Evolução -->
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <canvas id="evolucaoSaldo"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela Principal -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="table-responsive" style="max-height: 60vh;">
+        <table class="table table-hover align-middle table-sm">
+          <thead class="table-light sticky-top">
+            <tr>
+              <th>Código</th>
+              <th>Descrição</th>
+              <th class="text-end">Saldo Inicial</th>
+              <th class="text-end">Entradas</th>
+              <th class="text-end">Saídas</th>
+              <th class="text-end">Saldo Final</th>
+              <th class="text-end">Variação</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for linha in relatorio %}
+            <tr class="{% if linha.final < 0 %}table-danger{% endif %}" data-bs-toggle="collapse" 
+                data-bs-target="#detalhes-{{ loop.index }}" style="cursor: pointer;">
+              <td>{{ linha.nd.codigo }}</td>
+              <td>{{ linha.nd.nome }}</td>
+              <td class="text-end">R$ {{ '{:,.2f}'.format(linha.inicial).replace(',', '.') }}</td>
+              <td class="text-end text-success">R$ {{ '{:,.2f}'.format(linha.entrada).replace(',', '.') }}</td>
+              <td class="text-end text-danger">R$ {{ '{:,.2f}'.format(linha.saida).replace(',', '.') }}</td>
+              <td class="text-end fw-bold">R$ {{ '{:,.2f}'.format(linha.final).replace(',', '.') }}</td>
+              <td class="text-end">
+                <span class="badge {% if linha.variacao >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                  {{ '{:+.1f}'.format(linha.variacao) }}%
+                </span>
+              </td>
+            </tr>
+            {% if mostrar_detalhes %}
+            <tr>
+              <td colspan="7" class="p-0">
+                <div id="detalhes-{{ loop.index }}" class="collapse">
+                  <div class="p-3 bg-light">
+                    <h6 class="mb-3">Detalhes de Movimentação</h6>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <h6 class="text-success">Principais Entradas</h6>
+                        <ul class="list-unstyled">
+                          {% for entrada in linha.detalhes_entradas[:3] %}
+                          <li>
+                            <small>
+                              {{ entrada.data.strftime('%d/%m') }} - 
+                              R$ {{ '{:,.2f}'.format(entrada.valor).replace(',', '.') }} -
+                              {{ entrada.descricao }}
+                            </small>
+                          </li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                      <div class="col-md-6">
+                        <h6 class="text-danger">Principais Saídas</h6>
+                        <ul class="list-unstyled">
+                          {% for saida in linha.detalhes_saidas[:3] %}
+                          <li>
+                            <small>
+                              {{ saida.data.strftime('%d/%m') }} - 
+                              R$ {{ '{:,.2f}'.format(saida.valor).replace(',', '.') }} -
+                              {{ saida.descricao }}
+                            </small>
+                          </li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+          <tfoot class="table-light fw-bold">
+            <tr>
+              <td colspan="2">TOTAL</td>
+              <td class="text-end">R$ {{ '{:,.2f}'.format(totais.inicial).replace(',', '.') }}</td>
+              <td class="text-end text-success">R$ {{ '{:,.2f}'.format(totais.entrada).replace(',', '.') }}</td>
+              <td class="text-end text-danger">R$ {{ '{:,.2f}'.format(totais.saida).replace(',', '.') }}</td>
+              <td class="text-end">R$ {{ '{:,.2f}'.format(totais.final).replace(',', '.') }}</td>
+              <td class="text-end">
+                <span class="badge {% if totais.variacao >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                  {{ '{:+.1f}'.format(totais.variacao) }}%
+                </span>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botões de Exportação -->
+  <div class="d-flex gap-2 justify-content-end">
+    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalComparativo">
+      <i class="bi bi-bar-chart me-2"></i>Análise Comparativa
+    </button>
+    <a href="{{ url_for('relatorio_bp.exportar_mapa_excel', mes=mes, ano=ano) }}" class="btn btn-success">
+      <i class="bi bi-file-earmark-excel me-2"></i>Excel
+    </a>
+    <a href="{{ url_for('relatorio_bp.exportar_mapa_pdf', mes=mes, ano=ano) }}" class="btn btn-danger">
+      <i class="bi bi-file-earmark-pdf me-2"></i>PDF
+    </a>
+    <a href="{{ url_for('relatorio_bp.imprimir_mapa_fechamento', mes=mes, ano=ano) }}" class="btn btn-secondary">
+      <i class="bi bi-printer me-2"></i>Imprimir
+    </a>
+  </div>
+</div>
+
+<!-- Modal de Análise Comparativa -->
+<div class="modal fade" id="modalComparativo" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Análise Comparativa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <canvas id="graficoComparativoMeses"></canvas>
+          </div>
+          <div class="col-md-6">
+            <canvas id="graficoDistribuicao"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Gráfico de Evolução do Saldo
+  new Chart(document.getElementById('evolucaoSaldo'), {
+    type: 'line',
+    data: {
+      labels: ['Inicial', 'Entradas', 'Saídas', 'Final'],
+      datasets: [{
+        label: 'Evolução do Saldo',
+        data: [
+          {{ total_saldo_inicial }},
+          {{ total_saldo_inicial + total_entradas }},
+          {{ total_saldo_inicial + total_entradas - total_saidas }},
+          {{ total_saldo_final }}
+        ],
+        borderColor: '#0d6efd',
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+
+  // Gráfico Comparativo entre Meses
+  new Chart(document.getElementById('graficoComparativoMeses'), {
+    type: 'bar',
+    data: {
+      labels: ['Mês Anterior', 'Mês Atual'],
+      datasets: [
+        {
+          label: 'Entradas',
+          data: [{{ dados_comparativos.entradas_anterior }}, {{ total_entradas }}],
+          backgroundColor: '#198754'
+        },
+        {
+          label: 'Saídas',
+          data: [{{ dados_comparativos.saidas_anterior }}, {{ total_saidas }}],
+          backgroundColor: '#dc3545'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Comparativo Mensal'
+        }
+      }
+    }
+  });
+
+  // Gráfico de Distribuição por Natureza de Despesa
+  new Chart(document.getElementById('graficoDistribuicao'), {
+    type: 'doughnut',
+    data: {
+      labels: {{ naturezas_despesa|tojson }},
+      datasets: [{
+        data: {{ valores_naturezas|tojson }},
+        backgroundColor: [
+          '#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#dc3545',
+          '#fd7e14', '#ffc107', '#198754', '#20c997', '#0dcaf0'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Distribuição por Natureza de Despesa'
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}
+{% endblock %} 

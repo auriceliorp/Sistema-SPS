@@ -1,0 +1,169 @@
+{% extends 'base_simplificada.html' %}
+{% block title %}Mapa de Fechamento - {{ '%02d'|format(mes) }}/{{ ano }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <!-- Cabeçalho -->
+  <div class="text-center mb-4">
+    <h3 class="mb-1">Mapa de Fechamento Mensal do Almoxarifado</h3>
+    <h5 class="text-muted">Período: {{ meses[mes-1] }} de {{ ano }}</h5>
+  </div>
+
+  <!-- Resumo -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <table class="table table-sm table-bordered">
+        <thead class="table-light">
+          <tr>
+            <th class="text-center" colspan="4">Resumo do Período</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="text-center">
+            <td>
+              <strong>Saldo Inicial</strong><br>
+              R$ {{ '{:,.2f}'.format(total_saldo_inicial).replace(',', '.') }}
+            </td>
+            <td>
+              <strong>Entradas (+)</strong><br>
+              R$ {{ '{:,.2f}'.format(total_entradas).replace(',', '.') }}
+            </td>
+            <td>
+              <strong>Saídas (-)</strong><br>
+              R$ {{ '{:,.2f}'.format(total_saidas).replace(',', '.') }}
+            </td>
+            <td>
+              <strong>Saldo Final</strong><br>
+              R$ {{ '{:,.2f}'.format(total_saldo_final).replace(',', '.') }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tabela Principal -->
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-bordered table-sm">
+        <thead class="table-dark">
+          <tr class="text-center">
+            <th style="width: 10%">Código</th>
+            <th style="width: 35%">Natureza de Despesa</th>
+            <th style="width: 13%">Saldo Inicial</th>
+            <th style="width: 13%">Entradas</th>
+            <th style="width: 13%">Saídas</th>
+            <th style="width: 13%">Saldo Final</th>
+            <th style="width: 3%">Var.</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for linha in relatorio %}
+          <tr class="{% if linha.final < 0 %}table-danger{% endif %}">
+            <td class="text-center">{{ linha.nd.codigo }}</td>
+            <td>{{ linha.nd.nome }}</td>
+            <td class="text-end">{{ '{:,.2f}'.format(linha.inicial).replace(',', '.') }}</td>
+            <td class="text-end">{{ '{:,.2f}'.format(linha.entrada).replace(',', '.') }}</td>
+            <td class="text-end">{{ '{:,.2f}'.format(linha.saida).replace(',', '.') }}</td>
+            <td class="text-end fw-bold">{{ '{:,.2f}'.format(linha.final).replace(',', '.') }}</td>
+            <td class="text-center">
+              <small>{{ '{:+.0f}'.format(linha.variacao) }}%</small>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot class="table-light fw-bold">
+          <tr>
+            <td colspan="2" class="text-center">TOTAL GERAL</td>
+            <td class="text-end">{{ '{:,.2f}'.format(totais.inicial).replace(',', '.') }}</td>
+            <td class="text-end">{{ '{:,.2f}'.format(totais.entrada).replace(',', '.') }}</td>
+            <td class="text-end">{{ '{:,.2f}'.format(totais.saida).replace(',', '.') }}</td>
+            <td class="text-end">{{ '{:,.2f}'.format(totais.final).replace(',', '.') }}</td>
+            <td class="text-center">
+              <small>{{ '{:+.0f}'.format(totais.variacao) }}%</small>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Assinaturas -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <table class="table table-borderless">
+        <tr class="text-center">
+          <td style="width: 33%">
+            <div>_________________________________</div>
+            <div>Responsável pelo Almoxarifado</div>
+            <div class="small text-muted">Matrícula: _____________</div>
+          </td>
+          <td style="width: 33%">
+            <div>_________________________________</div>
+            <div>Contador(a)</div>
+            <div class="small text-muted">CRC: _____________</div>
+          </td>
+          <td style="width: 33%">
+            <div>_________________________________</div>
+            <div>Ordenador(a) de Despesas</div>
+            <div class="small text-muted">Portaria: _____________</div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Rodapé -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="text-center small text-muted">
+        <p class="mb-1">Documento gerado em {{ now().strftime('%d/%m/%Y às %H:%M') }}</p>
+        <p class="mb-0">Sistema de Gestão de Almoxarifado - EMBRAPA</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@media print {
+  @page {
+    size: landscape;
+    margin: 1cm;
+  }
+  
+  body {
+    font-size: 12px;
+  }
+  
+  .container-fluid {
+    width: 100%;
+    padding: 0;
+  }
+  
+  .table {
+    font-size: 11px;
+  }
+  
+  .table td, .table th {
+    padding: 4px 8px;
+  }
+  
+  .table-dark {
+    color: #000 !important;
+    background-color: #f8f9fa !important;
+    border: 1px solid #dee2e6;
+  }
+  
+  .table-danger {
+    color: #000 !important;
+    background-color: #ffe0e3 !important;
+  }
+}
+</style>
+
+<script>
+window.onload = function() {
+  window.print();
+}
+</script>
+{% endblock %} 

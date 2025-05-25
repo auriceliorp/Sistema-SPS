@@ -1,0 +1,136 @@
+{% extends "relatorios/base.html" %}
+
+{% block relatorios_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Relatório de Fornecedores</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('relatorios.index') }}">Relatórios</a></li>
+                <li class="breadcrumb-item active">Fornecedores</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('relatorios.relatorio_fornecedores') }}">
+                <!-- Opções do Relatório -->
+                <div class="row">
+                    <div class="col-12">
+                        <h5>Opções do Relatório</h5>
+                        <hr>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_contatos" name="incluir_contatos" checked>
+                            <label class="form-check-label" for="incluir_contatos">
+                                Incluir informações de contato
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_compras" name="incluir_compras" checked>
+                            <label class="form-check-label" for="incluir_compras">
+                                Incluir histórico de compras
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_grafico" name="incluir_grafico" checked>
+                            <label class="form-check-label" for="incluir_grafico">
+                                Incluir gráficos de análise
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="incluir_ranking" name="incluir_ranking" checked>
+                            <label class="form-check-label" for="incluir_ranking">
+                                Incluir ranking de fornecedores
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5>Filtros</h5>
+                        <hr>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="valor_minimo" class="form-label">Valor Mínimo de Compras</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="number" class="form-control" id="valor_minimo" name="valor_minimo" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="quantidade_minima" class="form-label">Quantidade Mínima de Compras</label>
+                            <input type="number" class="form-control" id="quantidade_minima" name="quantidade_minima" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ordenação -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5>Ordenação</h5>
+                        <hr>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="ordenar_por" class="form-label">Ordenar por</label>
+                            <select name="ordenar_por" id="ordenar_por" class="form-select">
+                                <option value="valor_total">Valor Total de Compras</option>
+                                <option value="quantidade_compras">Quantidade de Compras</option>
+                                <option value="ultima_compra">Data da Última Compra</option>
+                                <option value="nome">Nome do Fornecedor</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="ordem" class="form-label">Ordem</label>
+                            <select name="ordem" id="ordem" class="form-select">
+                                <option value="desc">Decrescente</option>
+                                <option value="asc">Crescente</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-excel me-2"></i>
+                        Gerar Relatório
+                    </button>
+                    <button type="reset" class="btn btn-secondary ms-2">
+                        <i class="fas fa-undo me-2"></i>
+                        Limpar Filtros
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Instruções -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">
+                <i class="fas fa-info-circle text-info"></i>
+                Informações sobre o Relatório
+            </h5>
+            <ul class="mb-0">
+                <li>O relatório inclui todos os fornecedores cadastrados no sistema.</li>
+                <li>As informações de contato incluem endereço, telefone e e-mail.</li>
+                <li>O histórico de compras mostra todas as compras realizadas com cada fornecedor.</li>
+                <li>Os gráficos apresentam análise de compras por fornecedor e tendências.</li>
+                <li>O ranking é baseado no valor total ou quantidade de compras realizadas.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %} 

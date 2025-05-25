@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+      <i class="bi bi-box me-2"></i>
+      Detalhes do Item
+    </h2>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{{ url_for('almoxarifado.index') }}">Almoxarifado</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('almoxarifado.listar_itens') }}">Itens</a></li>
+        <li class="breadcrumb-item active">Detalhes</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Informações Básicas -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title mb-4">Informações Básicas</h5>
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label text-muted">Código</label>
+              <p class="mb-0 fw-bold">{{ item.codigo }}</p>
+            </div>
+            <div class="col-md-9">
+              <label class="form-label text-muted">Nome</label>
+              <p class="mb-0 fw-bold">{{ item.nome }}</p>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label text-muted">Grupo</label>
+              <p class="mb-0">{{ item.grupo.nome }}</p>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label text-muted">Unidade de Medida</label>
+              <p class="mb-0">{{ item.unidade_medida }}</p>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label text-muted">Natureza de Despesa</label>
+              <p class="mb-0">{{ item.natureza_despesa.codigo }} - {{ item.natureza_despesa.nome }}</p>
+            </div>
+            <div class="col-12">
+              <label class="form-label text-muted">Descrição</label>
+              <p class="mb-0">{{ item.descricao or 'Não informada' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title mb-4">Situação Atual</h5>
+          <div class="mb-4">
+            <label class="form-label text-muted">Status</label>
+            <div>
+              {% if item.saldo == 0 %}
+              <span class="badge bg-danger">Zerado</span>
+              {% elif item.saldo <= item.estoque_minimo %}
+              <span class="badge bg-warning text-dark">Abaixo do Mínimo</span>
+              {% elif item.saldo >= item.estoque_maximo %}
+              <span class="badge bg-info">Acima do Máximo</span>
+              {% else %}
+              <span class="badge bg-success">Normal</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">Saldo Atual</label>
+            <h4 class="mb-0">{{ '{:,.2f}'.format(item.saldo).replace(',', '.') }} {{ item.unidade_medida }}</h4>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">Valor Médio</label>
+            <h4 class="mb-0">R$ {{ '{:,.2f}'.format(item.valor_medio).replace(',', '.') }}</h4>
+          </div>
+          <div>
+            <label class="form-label text-muted">Valor Total em Estoque</label>
+            <h4 class="mb-0">R$ {{ '{:,.2f}'.format(item.valor_total).replace(',', '.') }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controle de Estoque -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-4">Controle de Estoque</h5>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="card bg-light">
+                <div class="card-body text-center">
+                  <h6 class="card-subtitle mb-2 text-muted">Estoque Mínimo</h6>
+                  <h4 class="mb-0">{{ '{:,.2f}'.format(item.estoque_minimo).replace(',', '.') }}</h4>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-light">
+                <div class="card-body text-center">
+                  <h6 class="card-subtitle mb-2 text-muted">Ponto de Pedido</h6>
+                  <h4 class="mb-0">{{ '{:,.2f}'.format(item.ponto_pedido).replace(',', '.') }}</h4>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-light">
+                <div class="card-body text-center">
+                  <h6 class="card-subtitle mb-2 text-muted">Estoque Máximo</h6>
+                  <h4 class="mb-0">{{ '{:,.2f}'.format(item.estoque_maximo).replace(',', '.') }}</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Últimas Movimentações -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title mb-4">Últimas Movimentações</h5>
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Documento</th>
+              <th class="text-end">Quantidade</th>
+              <th class="text-end">Valor Unitário</th>
+              <th class="text-end">Valor Total</th>
+              <th>Observação</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for mov in movimentacoes %}
+            <tr>
+              <td>{{ mov.data.strftime('%d/%m/%Y') }}</td>
+              <td>
+                {% if mov.tipo == 'entrada' %}
+                <span class="badge bg-success">Entrada</span>
+                {% else %}
+                <span class="badge bg-danger">Saída</span>
+                {% endif %}
+              </td>
+              <td>{{ mov.documento }}</td>
+              <td class="text-end">{{ '{:,.2f}'.format(mov.quantidade).replace(',', '.') }}</td>
+              <td class="text-end">R$ {{ '{:,.2f}'.format(mov.valor_unitario).replace(',', '.') }}</td>
+              <td class="text-end">R$ {{ '{:,.2f}'.format(mov.valor_total).replace(',', '.') }}</td>
+              <td>{{ mov.observacao or '-' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botões -->
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('almoxarifado.editar_item', id=item.id) }}" class="btn btn-primary">
+      <i class="bi bi-pencil me-2"></i>Editar
+    </a>
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalExclusao">
+      <i class="bi bi-trash me-2"></i>Excluir
+    </button>
+    <a href="{{ url_for('almoxarifado.listar_itens') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-2"></i>Voltar
+    </a>
+  </div>
+</div>
+
+<!-- Modal de Exclusão -->
+<div class="modal fade" id="modalExclusao" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir o item <strong>{{ item.codigo }} - {{ item.nome }}</strong>?</p>
+        <p class="text-danger mb-0">Esta ação não poderá ser desfeita.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form action="{{ url_for('almoxarifado.excluir_item', id=item.id) }}" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger">Excluir</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+      <i class="bi bi-box-arrow-in-right me-2"></i>
+      Entradas de Material
+    </h2>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{{ url_for('almoxarifado.index') }}">Almoxarifado</a></li>
+        <li class="breadcrumb-item active">Entradas</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="GET" class="row g-3">
+        <div class="col-md-2">
+          <label for="data_inicial" class="form-label">Data Inicial</label>
+          <input type="date" class="form-control" id="data_inicial" name="data_inicial"
+                 value="{{ request.args.get('data_inicial', '') }}">
+        </div>
+
+        <div class="col-md-2">
+          <label for="data_final" class="form-label">Data Final</label>
+          <input type="date" class="form-control" id="data_final" name="data_final"
+                 value="{{ request.args.get('data_final', '') }}">
+        </div>
+
+        <div class="col-md-3">
+          <label for="fornecedor" class="form-label">Fornecedor</label>
+          <select name="fornecedor" id="fornecedor" class="form-select">
+            <option value="">Todos</option>
+            {% for f in fornecedores %}
+            <option value="{{ f.id }}" {% if request.args.get('fornecedor')|int == f.id %}selected{% endif %}>
+              {{ f.nome }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label for="tipo_documento" class="form-label">Tipo de Documento</label>
+          <select name="tipo_documento" id="tipo_documento" class="form-select">
+            <option value="">Todos</option>
+            {% for tipo in tipos_documento %}
+            <option value="{{ tipo }}" {% if request.args.get('tipo_documento') == tipo %}selected{% endif %}>
+              {{ tipo }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label for="numero_documento" class="form-label">Nº Documento</label>
+          <input type="text" class="form-control" id="numero_documento" name="numero_documento"
+                 value="{{ request.args.get('numero_documento', '') }}">
+        </div>
+
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search me-2"></i>Filtrar
+          </button>
+          <a href="{{ url_for('almoxarifado.listar_entradas') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-counterclockwise me-2"></i>Limpar
+          </a>
+          <a href="{{ url_for('almoxarifado.nova_entrada') }}" class="btn btn-success float-end">
+            <i class="bi bi-plus-lg me-2"></i>Nova Entrada
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Documento</th>
+              <th>Fornecedor</th>
+              <th class="text-end">Valor Total</th>
+              <th>Usuário</th>
+              <th class="text-center">Status</th>
+              <th class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entrada in entradas %}
+            <tr>
+              <td>{{ entrada.data.strftime('%d/%m/%Y') }}</td>
+              <td>{{ entrada.tipo_documento }}</td>
+              <td>{{ entrada.numero_documento }}</td>
+              <td>{{ entrada.fornecedor.nome }}</td>
+              <td class="text-end">R$ {{ '{:,.2f}'.format(entrada.valor_total).replace(',', '.') }}</td>
+              <td>{{ entrada.usuario.nome }}</td>
+              <td class="text-center">
+                {% if entrada.status == 'pendente' %}
+                <span class="badge bg-warning text-dark">Pendente</span>
+                {% elif entrada.status == 'aprovada' %}
+                <span class="badge bg-success">Aprovada</span>
+                {% elif entrada.status == 'rejeitada' %}
+                <span class="badge bg-danger">Rejeitada</span>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                <div class="btn-group">
+                  <a href="{{ url_for('almoxarifado.visualizar_entrada', id=entrada.id) }}" 
+                     class="btn btn-sm btn-outline-primary" title="Visualizar">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                  {% if entrada.status == 'pendente' %}
+                  <a href="{{ url_for('almoxarifado.editar_entrada', id=entrada.id) }}" 
+                     class="btn btn-sm btn-outline-secondary" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button type="button" class="btn btn-sm btn-outline-danger" title="Excluir"
+                          onclick="confirmarExclusao('{{ url_for('almoxarifado.excluir_entrada', id=entrada.id) }}')">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginação -->
+      {% if pagination %}
+      <nav aria-label="Navegação de páginas" class="mt-4">
+        <ul class="pagination justify-content-center">
+          {% for page in pagination.iter_pages() %}
+          {% if page %}
+          <li class="page-item {% if page == pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('almoxarifado.listar_entradas', page=page, **request.args) }}">
+              {{ page }}
+            </a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmação -->
+<div class="modal fade" id="modalConfirmacao" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir esta entrada?</p>
+        <p class="text-danger mb-0">Esta ação não poderá ser desfeita.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form id="formExclusao" method="POST" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger">Excluir</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block scripts %}
+<script>
+function confirmarExclusao(url) {
+  document.getElementById('formExclusao').action = url;
+  new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+}
+</script>
+{% endblock %}
+{% endblock %} 
