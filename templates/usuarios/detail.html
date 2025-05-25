@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Usuário - {{ usuario.nome }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('usuario_bp.lista_usuarios') }}">Usuários</a></li>
+      <li class="breadcrumb-item active">{{ usuario.nome }}</li>
+    </ol>
+  </nav>
+
+  <!-- Cabeçalho -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">
+      <i class="bi bi-person me-2"></i>
+      Detalhes do Usuário
+    </h4>
+    <div class="d-flex gap-2">
+      {% if current_user.is_admin or current_user.id == usuario.id %}
+      <a href="{{ url_for('usuario_bp.editar_usuario', id=usuario.id) }}" class="btn btn-primary">
+        <i class="bi bi-pencil me-1"></i> Editar
+      </a>
+      {% endif %}
+      {% if current_user.is_admin and current_user.id != usuario.id %}
+      <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir">
+        <i class="bi bi-trash me-1"></i> Excluir
+      </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Informações Básicas -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <div class="mb-3">
+            {% if usuario.foto %}
+            <img src="{{ url_for('static', filename=usuario.foto) }}" 
+                 class="rounded-circle img-thumbnail" 
+                 width="150" 
+                 height="150"
+                 alt="{{ usuario.nome }}">
+            {% else %}
+            <div class="avatar-placeholder rounded-circle bg-secondary text-white mx-auto" 
+                 style="width: 150px; height: 150px; font-size: 4rem; line-height: 150px;">
+              {{ usuario.nome[:1].upper() }}
+            </div>
+            {% endif %}
+          </div>
+          <h5 class="mb-1">{{ usuario.nome }}</h5>
+          <p class="text-muted mb-3">{{ usuario.email }}</p>
+          
+          {% if usuario.is_admin %}
+          <span class="badge bg-danger mb-2">Administrador</span>
+          {% elif usuario.is_gestor %}
+          <span class="badge bg-warning mb-2">Gestor</span>
+          {% else %}
+          <span class="badge bg-info mb-2">Usuário</span>
+          {% endif %}
+
+          {% if usuario.ativo %}
+          <span class="badge bg-success">Ativo</span>
+          {% else %}
+          <span class="badge bg-danger">Inativo</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Informações Detalhadas -->
+    <div class="col-md-8 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Informações Detalhadas</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label text-muted">Setor</label>
+              <p class="mb-0">{{ usuario.setor.nome if usuario.setor else 'Não definido' }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted">Cargo</label>
+              <p class="mb-0">{{ usuario.cargo or 'Não definido' }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted">Data de Cadastro</label>
+              <p class="mb-0">{{ usuario.data_cadastro.strftime('%d/%m/%Y %H:%M') }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted">Último Acesso</label>
+              <p class="mb-0">
+                {% if usuario.ultimo_acesso %}
+                {{ usuario.ultimo_acesso.strftime('%d/%m/%Y %H:%M') }}
+                {% else %}
+                Nunca acessou
+                {% endif %}
+              </p>
+            </div>
+            <div class="col-12">
+              <label class="form-label text-muted">Permissões</label>
+              <div class="d-flex flex-wrap gap-2">
+                {% for permissao in usuario.permissoes %}
+                <span class="badge bg-secondary">{{ permissao.nome }}</span>
+                {% else %}
+                <span class="text-muted">Nenhuma permissão específica</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Histórico de Atividades -->
+    <div class="col-12 mb-4">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Histórico de Atividades</h5>
+          <a href="#" class="btn btn-sm btn-outline-primary">Ver Todas</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Data/Hora</th>
+                  <th>Ação</th>
+                  <th>Detalhes</th>
+                  <th>IP</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in usuario.logs[-5:] %}
+                <tr>
+                  <td>{{ log.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                  <td>{{ log.acao }}</td>
+                  <td>{{ log.detalhes }}</td>
+                  <td>{{ log.ip }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="4" class="text-center py-3 text-muted">
+                    Nenhuma atividade registrada
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Exclusão -->
+{% if current_user.is_admin and current_user.id != usuario.id %}
+<div class="modal fade" id="modalExcluir" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir o usuário <strong>{{ usuario.nome }}</strong>?</p>
+        <p class="text-danger mb-0"><small>Esta ação não poderá ser desfeita.</small></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form method="POST" action="{{ url_for('usuario_bp.excluir_usuario', id=usuario.id) }}" class="d-inline">
+          <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %} 

@@ -1,0 +1,88 @@
+{% extends "base_impressao.html" %}
+
+{% block title %}Requisição de Material #{{ saida.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <h3>Requisição de Material</h3>
+        <p class="text-muted">{{ saida.data_saida.strftime('%d/%m/%Y') }}</p>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-6">
+            <h5>Informações da Requisição</h5>
+            <table class="table table-bordered">
+                <tr>
+                    <th width="40%">Setor:</th>
+                    <td>{{ saida.setor.nome }}</td>
+                </tr>
+                <tr>
+                    <th>Requisitante:</th>
+                    <td>{{ saida.requisitante }}</td>
+                </tr>
+                <tr>
+                    <th>Tipo de Saída:</th>
+                    <td>{{ saida.tipo_saida }}</td>
+                </tr>
+                <tr>
+                    <th>Status:</th>
+                    <td>{{ saida.status }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-6">
+            <h5>Observações</h5>
+            <div class="border p-2" style="min-height: 100px;">
+                {{ saida.observacao or 'Nenhuma observação registrada.' }}
+            </div>
+        </div>
+    </div>
+
+    <h5>Itens Requisitados</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th class="text-center">Quantidade</th>
+                <th class="text-center">Unidade</th>
+                <th>Localização</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in saida.itens %}
+            <tr>
+                <td>{{ item.item.descricao }}</td>
+                <td class="text-center">{{ item.quantidade }}</td>
+                <td class="text-center">{{ item.item.unidade }}</td>
+                <td>{{ item.item.localizacao }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="row assinatura">
+        <div class="col-4">
+            <div class="border-top pt-2 text-center">
+                <p class="mb-0">_____________________________________</p>
+                <p class="mb-0"><small>{{ saida.requisitante }}</small></p>
+                <p><small>Requisitante</small></p>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="border-top pt-2 text-center">
+                <p class="mb-0">_____________________________________</p>
+                <p class="mb-0"><small>{{ saida.setor.responsavel }}</small></p>
+                <p><small>Chefia Imediata</small></p>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="border-top pt-2 text-center">
+                <p class="mb-0">_____________________________________</p>
+                <p class="mb-0"><small>Almoxarifado</small></p>
+                <p><small>Responsável pelo Almoxarifado</small></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

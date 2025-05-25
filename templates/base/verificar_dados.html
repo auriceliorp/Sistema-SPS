@@ -1,0 +1,39 @@
+{% extends "base/base.html" %}
+
+{% block title %}Verificar Dados - Sistema de Almoxarifado{% endblock %}
+
+{% block main_content %}
+<div class="container py-4">
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Verificação de Dados Necessária
+        </h4>
+        <p>
+            Detectamos que alguns dados do sistema precisam ser verificados antes de prosseguir.
+            Por favor, revise as informações abaixo:
+        </p>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Itens que Precisam de Atenção:</h5>
+            <ul class="list-group list-group-flush">
+                {% for item in itens_verificar %}
+                <li class="list-group-item">
+                    <i class="bi bi-arrow-right-circle"></i>
+                    {{ item }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{{ url_for('main.home') }}" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i>
+            Voltar para Home
+        </a>
+    </div>
+</div>
+{% endblock %} 

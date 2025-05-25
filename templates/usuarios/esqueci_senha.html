@@ -1,0 +1,30 @@
+{% extends "base/base_simplificada.html" %}
+{% block title %}Esqueci a Senha - Sistema de Almoxarifado{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-6 col-lg-4">
+            <div class="text-center mb-4">
+                <img src="{{ url_for('static', filename='embrapa_logo.png') }}" alt="Embrapa" style="max-width: 200px;">
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title text-center mb-4">Esqueci a Senha</h4>
+                    
+                    <div class="alert alert-info">
+                        Para redefinir sua senha, entre em contato com o administrador do sistema.
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('main.login') }}" class="btn btn-outline-secondary">
+                            Voltar para o Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,42 @@
+{% extends "base/base_simplificada.html" %}
+{% block title %}Trocar Senha - Sistema de Almoxarifado{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-6 col-lg-4">
+            <div class="text-center mb-4">
+                <img src="{{ url_for('static', filename='embrapa_logo.png') }}" alt="Embrapa" style="max-width: 200px;">
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title text-center mb-4">Trocar Senha</h4>
+                    
+                    <form method="POST" action="{{ url_for('usuario_bp.trocar_senha') }}">
+                        <div class="mb-3">
+                            <label for="senha_atual" class="form-label">Senha Atual</label>
+                            <input type="password" class="form-control" id="senha_atual" name="senha_atual" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="nova_senha" class="form-label">Nova Senha</label>
+                            <input type="password" class="form-control" id="nova_senha" name="nova_senha" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
+                            <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" required>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Alterar Senha</button>
+                            <a href="{{ url_for('main.home') }}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

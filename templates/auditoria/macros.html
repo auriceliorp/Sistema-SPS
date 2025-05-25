@@ -1,0 +1,64 @@
+{% macro render_avatar(usuario, tamanho=32) %}
+{% if usuario %}
+<div class="d-flex align-items-center">
+  <div class="avatar me-2">
+    {% if usuario.foto %}
+    <img src="{{ url_for('static', filename=usuario.foto) }}" 
+         class="rounded-circle" width="{{ tamanho }}" height="{{ tamanho }}"
+         alt="{{ usuario.nome }}">
+    {% else %}
+    <div class="avatar-placeholder rounded-circle bg-secondary text-white"
+         style="width: {{ tamanho }}px; height: {{ tamanho }}px; line-height: {{ tamanho }}px; text-align: center;">
+      {{ usuario.nome[:1].upper() }}
+    </div>
+    {% endif %}
+  </div>
+  {{ usuario.nome }}
+</div>
+{% else %}
+<span class="text-muted">Sistema</span>
+{% endif %}
+{% endmacro %}
+
+{% macro render_badge_acao(acao) %}
+{% if acao == 'criar' %}
+<span class="badge bg-success">Criar</span>
+{% elif acao == 'editar' %}
+<span class="badge bg-warning">Editar</span>
+{% elif acao == 'excluir' %}
+<span class="badge bg-danger">Excluir</span>
+{% else %}
+<span class="badge bg-info">{{ acao }}</span>
+{% endif %}
+{% endmacro %}
+
+{% macro render_breadcrumb(pagina_atual) %}
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+    {% if pagina_atual == 'lista' %}
+    <li class="breadcrumb-item active">Logs de Auditoria</li>
+    {% else %}
+    <li class="breadcrumb-item"><a href="{{ url_for('auditoria_bp.lista_logs') }}">Logs de Auditoria</a></li>
+    <li class="breadcrumb-item active">{{ pagina_atual }}</li>
+    {% endif %}
+  </ol>
+</nav>
+{% endmacro %}
+
+{% macro render_empty_state(mensagem) %}
+<div class="text-center py-4 text-muted">
+  <i class="bi bi-clock-history display-4 d-block mb-2"></i>
+  <p class="mb-0">{{ mensagem }}</p>
+</div>
+{% endmacro %}
+
+{% macro render_tooltip_scripts() %}
+<script>
+  // Inicializa os tooltips
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+</script>
+{% endmacro %} 

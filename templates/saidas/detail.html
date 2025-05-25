@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('almoxarifado.saida.lista_saidas') }}">Saídas</a></li>
+            <li class="breadcrumb-item active">Detalhes da Saída</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>Detalhes da Saída</h4>
+            <div>
+                <a href="{{ url_for('almoxarifado.saida.imprimir_saida', id=saida.id) }}" 
+                   class="btn btn-secondary" target="_blank">
+                    <i class="fas fa-print"></i> Imprimir
+                </a>
+                {% if saida.status != 'Finalizada' %}
+                <a href="{{ url_for('almoxarifado.saida.editar_saida', id=saida.id) }}" 
+                   class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Informações Gerais</h5>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="40%">Data da Saída:</th>
+                            <td>{{ saida.data_saida.strftime('%d/%m/%Y') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Setor:</th>
+                            <td>{{ saida.setor.nome }}</td>
+                        </tr>
+                        <tr>
+                            <th>Requisitante:</th>
+                            <td>{{ saida.requisitante }}</td>
+                        </tr>
+                        <tr>
+                            <th>Tipo de Saída:</th>
+                            <td>{{ saida.tipo_saida }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status:</th>
+                            <td>
+                                <span class="badge {% if saida.status == 'Finalizada' %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ saida.status }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h5>Observações</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            {{ saida.observacao or 'Nenhuma observação registrada.' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="mt-4">Itens da Saída</h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantidade</th>
+                            <th>Unidade</th>
+                            <th>Localização</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in saida.itens %}
+                        <tr>
+                            <td>{{ item.item.descricao }}</td>
+                            <td>{{ item.quantidade }}</td>
+                            <td>{{ item.item.unidade }}</td>
+                            <td>{{ item.item.localizacao }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

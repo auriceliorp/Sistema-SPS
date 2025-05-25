@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% block title %}Itens Cadastrados{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+      <li class="breadcrumb-item active">Itens</li>
+    </ol>
+  </nav>
+
+  <!-- Cabeçalho com botão Novo Item -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <h4 class="mb-0">
+      <i class="bi bi-box me-2"></i>
+      Itens Cadastrados
+    </h4>
+    <a href="{{ url_for('item_bp.novo_item') }}" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-1"></i> Novo Item
+    </a>
+  </div>
+
+  <!-- Card de filtros -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">Filtrar por:</label>
+          <select name="filtro" class="form-select">
+            <option value="sap" {% if filtro == 'sap' %}selected{% endif %}>Código SAP</option>
+            <option value="descricao" {% if filtro == 'descricao' %}selected{% endif %}>Descrição</option>
+            <option value="grupo" {% if filtro == 'grupo' %}selected{% endif %}>Grupo</option>
+            <option value="nd" {% if filtro == 'nd' %}selected{% endif %}>ND</option>
+          </select>
+        </div>
+        <div class="col-md-5">
+          <label class="form-label">Valor:</label>
+          <div class="input-group">
+            <input type="text" name="busca" value="{{ busca or '' }}" class="form-control" placeholder="Digite para buscar...">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-search"></i> Buscar
+            </button>
+          </div>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+          <a href="{{ url_for('item_bp.exportar_excel', nd=nd_selecionado) }}" class="btn btn-success w-100">
+            <i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel
+          </a>
+          <a href="{{ url_for('item_bp.exportar_pdf', nd=nd_selecionado) }}" class="btn btn-danger w-100">
+            <i class="bi bi-file-earmark-pdf me-1"></i> Exportar PDF
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tabela-itens">
+          <thead class="table-light">
+            <tr>
+              <th>Cód. SAP</th>
+              <th>SIADS</th>
+              <th style="min-width: 250px;">Descrição</th>
+              <th>Unidade</th>
+              <th class="text-end">Estoque</th>
+              <th class="text-end">Unit. (R$)</th>
+              <th class="text-end">Saldo (R$)</th>
+              <th>Grupo</th>
+              <th>ND</th>
+              <th>Validade</th>
+              <th class="text-center" style="width: 120px;">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in itens.items %}
+            <tr>
+              <td>{{ item.codigo_sap }}</td>
+              <td>{{ item.codigo_siads }}</td>
+              <td>{{ item.nome }}</td>
+              <td>{{ item.unidade }}</td>
+              <td class="text-end">{{ item.estoque_atual }}</td>
+              <td class="text-end">R$ {{ "%.2f"|format(item.valor_unitario or 0) }}</td>
+              <td class="text-end">R$ {{ "%.2f"|format(item.saldo_financeiro or 0) }}</td>
+              <td>{{ item.grupo.nome if item.grupo }}</td>
+              <td>{{ item.natureza_despesa.codigo if item.natureza_despesa }}</td>
+              <td>{{ item.data_validade.strftime('%d/%m/%Y') if item.data_validade }}</td>
+              <td>
+                <div class="d-flex justify-content-center gap-1">
+                  <a href="{{ url_for('item_bp.detalhes_item', id=item.id) }}" 
+                     class="btn btn-sm btn-outline-info" 
+                     data-bs-toggle="tooltip" 
+                     title="Visualizar Detalhes">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                  <a href="{{ url_for('item_bp.editar_item', id=item.id) }}" 
+                     class="btn btn-sm btn-outline-primary"
+                     data-bs-toggle="tooltip" 
+                     title="Editar Item">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button type="button" 
+                          class="btn btn-sm btn-outline-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#modalExcluir{{ item.id }}"
+                          title="Excluir Item">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+
+                <!-- Modal de Confirmação -->
+                <div class="modal fade" id="modalExcluir{{ item.id }}" tabindex="-1">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Confirmar Exclusão</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p>Tem certeza que deseja excluir o item <strong>{{ item.nome }}</strong>?</p>
+                        <p class="text-danger mb-0"><small>Esta ação não poderá ser desfeita.</small></p>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form method="POST" action="{{ url_for('item_bp.excluir_item', id=item.id) }}" class="d-inline">
+                          <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="11" class="text-center py-4 text-muted">
+                <i class="bi bi-inbox display-4 d-block mb-2"></i>
+                Nenhum item encontrado.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginação -->
+  {% if itens.pages > 1 %}
+  <nav class="mt-4" aria-label="Paginação">
+    <ul class="pagination justify-content-center">
+      {% if itens.has_prev %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('item_bp.lista_itens', page=itens.prev_num, filtro=filtro, busca=busca, nd_id=nd_selecionado) }}">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+      </li>
+      {% endif %}
+
+      {% for page_num in itens.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {% if page_num %}
+          {% if itens.page == page_num %}
+            <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+          {% else %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('item_bp.lista_itens', page=page_num, filtro=filtro, busca=busca, nd_id=nd_selecionado) }}">{{ page_num }}</a>
+            </li>
+          {% endif %}
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if itens.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('item_bp.lista_itens', page=itens.next_num, filtro=filtro, busca=busca, nd_id=nd_selecionado) }}">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+
+{% block scripts %}
+<script>
+  // Inicializa os tooltips
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+
+  // Inicializa a tabela com DataTables
+  $(document).ready(function() {
+    $('#tabela-itens').DataTable({
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json'
+      },
+      pageLength: 25,
+      dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip'
+    });
+  });
+</script>
+{% endblock %}
+

@@ -1,0 +1,32 @@
+{% extends "base_simple.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ 'Editar' if nd else 'Nova' }} Natureza de Despesa</h2>
+    <a href="{{ url_for('main.listar_naturezas_despesa') }}" class="btn btn-secondary">Voltar</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="codigo" class="form-label">Código</label>
+                <input type="text" class="form-control" id="codigo" name="codigo" value="{{ nd.codigo if nd else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="nome" name="nome" value="{{ nd.nome if nd else '' }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

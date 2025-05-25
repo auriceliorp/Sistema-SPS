@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% from 'auditoria/macros.html' import render_avatar, render_badge_acao, render_breadcrumb, render_empty_state, render_tooltip_scripts %}
+
+{% block title %}Detalhes do Log{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <!-- Breadcrumb -->
+  {{ render_breadcrumb('Detalhes do Log') }}
+
+  <!-- Título -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">
+      <i class="bi bi-clock-history me-2"></i>
+      Detalhes do Log
+    </h4>
+    <a href="{{ url_for('auditoria_bp.lista_logs') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i> Voltar
+    </a>
+  </div>
+
+  <div class="row">
+    <!-- Informações Básicas -->
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Informações Básicas</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label text-muted">Data/Hora</label>
+            <p class="mb-0">{{ log.data_hora.strftime('%d/%m/%Y %H:%M:%S') }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">Usuário</label>
+            {{ render_avatar(log.usuario, 32) }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">Ação</label>
+            <p class="mb-0">{{ render_badge_acao(log.acao) }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">Tabela</label>
+            <p class="mb-0">{{ log.tabela }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">ID do Registro</label>
+            <p class="mb-0">{{ log.registro_id or '-' }}</p>
+          </div>
+          <div>
+            <label class="form-label text-muted">IP</label>
+            <p class="mb-0">{{ log.ip or '-' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detalhes da Alteração -->
+    <div class="col-md-8 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Detalhes da Alteração</h5>
+        </div>
+        <div class="card-body">
+          {% if log.dados_anteriores or log.dados_novos %}
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Campo</th>
+                  <th>Valor Anterior</th>
+                  <th>Novo Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for campo in log.campos_alterados %}
+                <tr>
+                  <td>{{ campo }}</td>
+                  <td>
+                    {% if log.dados_anteriores and campo in log.dados_anteriores %}
+                    <span class="text-danger">{{ log.dados_anteriores[campo] }}</span>
+                    {% else %}
+                    -
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if log.dados_novos and campo in log.dados_novos %}
+                    <span class="text-success">{{ log.dados_novos[campo] }}</span>
+                    {% else %}
+                    -
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          {{ render_empty_state('Nenhum detalhe disponível para esta ação.') }}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Informações Adicionais -->
+    {% if log.informacoes_adicionais %}
+    <div class="col-12 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Informações Adicionais</h5>
+        </div>
+        <div class="card-body">
+          <pre class="mb-0"><code>{{ log.informacoes_adicionais | tojson(indent=2) }}</code></pre>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ render_tooltip_scripts() }}
+{% endblock %} 

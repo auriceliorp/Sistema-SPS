@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Alterar Senha{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('usuario_bp.lista_usuarios') }}">Usuários</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('usuario_bp.detalhes_usuario', id=usuario.id) }}">{{ usuario.nome }}</a></li>
+      <li class="breadcrumb-item active">Alterar Senha</li>
+    </ol>
+  </nav>
+
+  <!-- Cabeçalho -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">
+      <i class="bi bi-key me-2"></i>
+      Alterar Senha
+    </h4>
+  </div>
+
+  <!-- Card do Formulário -->
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <form method="POST" class="needs-validation" novalidate>
+            {{ form.csrf_token }}
+
+            {% if current_user.id == usuario.id %}
+            <!-- Senha Atual -->
+            <div class="mb-3">
+              <label for="senha_atual" class="form-label">Senha Atual *</label>
+              {{ form.senha_atual(class="form-control" + (" is-invalid" if form.senha_atual.errors else ""), placeholder="Digite sua senha atual") }}
+              {% if form.senha_atual.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.senha_atual.errors %}
+                {{ error }}
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Nova Senha -->
+            <div class="mb-3">
+              <label for="nova_senha" class="form-label">Nova Senha *</label>
+              {{ form.nova_senha(class="form-control" + (" is-invalid" if form.nova_senha.errors else ""), placeholder="Digite a nova senha") }}
+              {% if form.nova_senha.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.nova_senha.errors %}
+                {{ error }}
+                {% endfor %}
+              </div>
+              {% endif %}
+              <div class="form-text">
+                A senha deve conter:
+                <ul class="mb-0">
+                  <li>Mínimo de 8 caracteres</li>
+                  <li>Pelo menos uma letra maiúscula</li>
+                  <li>Pelo menos uma letra minúscula</li>
+                  <li>Pelo menos um número</li>
+                  <li>Pelo menos um caractere especial (@$!%*?&)</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Confirmar Nova Senha -->
+            <div class="mb-4">
+              <label for="confirmar_nova_senha" class="form-label">Confirmar Nova Senha *</label>
+              {{ form.confirmar_nova_senha(class="form-control" + (" is-invalid" if form.confirmar_nova_senha.errors else ""), placeholder="Confirme a nova senha") }}
+              {% if form.confirmar_nova_senha.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.confirmar_nova_senha.errors %}
+                {{ error }}
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Botões -->
+            <div class="d-flex justify-content-end gap-2">
+              <a href="{{ url_for('usuario_bp.detalhes_usuario', id=usuario.id) }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg me-1"></i> Cancelar
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i> Salvar Nova Senha
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Card de Dicas -->
+      <div class="card mt-4">
+        <div class="card-body">
+          <h5 class="card-title">
+            <i class="bi bi-info-circle me-2"></i>
+            Dicas de Segurança
+          </h5>
+          <ul class="mb-0">
+            <li>Use senhas diferentes para cada conta</li>
+            <li>Evite usar informações pessoais na senha</li>
+            <li>Quanto mais longa a senha, mais segura ela é</li>
+            <li>Considere usar um gerenciador de senhas</li>
+            <li>Troque suas senhas periodicamente</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Validação do formulário
+  (function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+
+  // Validação em tempo real da força da senha
+  document.getElementById('nova_senha').addEventListener('input', function(e) {
+    const senha = e.target.value;
+    const regexMaiuscula = /[A-Z]/;
+    const regexMinuscula = /[a-z]/;
+    const regexNumero = /[0-9]/;
+    const regexEspecial = /[@$!%*?&]/;
+    
+    const feedback = [];
+    
+    if (senha.length < 8) feedback.push('Mínimo de 8 caracteres');
+    if (!regexMaiuscula.test(senha)) feedback.push('Pelo menos uma letra maiúscula');
+    if (!regexMinuscula.test(senha)) feedback.push('Pelo menos uma letra minúscula');
+    if (!regexNumero.test(senha)) feedback.push('Pelo menos um número');
+    if (!regexEspecial.test(senha)) feedback.push('Pelo menos um caractere especial');
+    
+    if (feedback.length > 0) {
+      e.target.setCustomValidity('Requisitos não atendidos');
+    } else {
+      e.target.setCustomValidity('');
+    }
+  });
+
+  // Validação de confirmação de senha
+  document.getElementById('confirmar_nova_senha').addEventListener('input', function(e) {
+    const senha = document.getElementById('nova_senha').value;
+    const confirmacao = e.target.value;
+    
+    if (senha !== confirmacao) {
+      e.target.setCustomValidity('As senhas não conferem');
+    } else {
+      e.target.setCustomValidity('');
+    }
+  });
+</script>
+{% endblock %} 

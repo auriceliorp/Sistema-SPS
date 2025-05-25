@@ -1,0 +1,94 @@
+{% extends "base/base.html" %}
+{% block title %}Almoxarifado - Sistema de Almoxarifado{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid py-4">
+    <h2 class="mb-4">Almoxarifado</h2>
+
+    <!-- Seção de Gestão de Itens -->
+    <div class="row g-4 mb-5">
+        <!-- Cadastro de Itens -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-box text-primary"></i>
+                        Cadastro de Itens
+                    </h5>
+                    <p class="card-text">Gerencie o cadastro de itens do almoxarifado.</p>
+                    <a href="{{ url_for('item_bp.lista_itens') }}" class="btn btn-primary">
+                        Gerenciar Itens
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Naturezas de Despesa -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-tags text-success"></i>
+                        Naturezas de Despesa
+                    </h5>
+                    <p class="card-text">Gerencie as naturezas de despesa e grupos.</p>
+                    <a href="{{ url_for('nd_bp.lista_nds') }}" class="btn btn-success">
+                        Gerenciar NDs
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fornecedores -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-building text-info"></i>
+                        Fornecedores
+                    </h5>
+                    <p class="card-text">Gerencie o cadastro de fornecedores.</p>
+                    <a href="{{ url_for('fornecedor_bp.lista_fornecedores') }}" class="btn btn-info text-white">
+                        Gerenciar Fornecedores
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção de Configurações -->
+    <div class="row g-4">
+        <!-- Unidades Locais -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-building-gear text-warning"></i>
+                        Unidades Locais
+                    </h5>
+                    <p class="card-text">Configure as unidades locais do sistema.</p>
+                    <a href="{{ url_for('ul_bp.lista_uls') }}" class="btn btn-warning">
+                        Configurar ULs
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Locais de Estoque -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-geo-alt text-secondary"></i>
+                        Locais de Estoque
+                    </h5>
+                    <p class="card-text">Gerencie os locais de armazenamento.</p>
+                    <a href="{{ url_for('local_bp.lista_locais') }}" class="btn btn-secondary">
+                        Gerenciar Locais
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

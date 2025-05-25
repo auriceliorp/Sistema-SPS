@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Nova Requisição - Almoxarifado{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Nova Requisição de Material</h2>
+    <a href="{{ url_for('requisicoes.listar_requisicoes') }}" class="btn btn-secondary">Voltar para Lista</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Informações da Requisição</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('requisicoes.criar_requisicao') }}">
+            <div class="mb-3">
+                <label for="observacao_solicitante" class="form-label">Observação (opcional)</label>
+                <textarea class="form-control" id="observacao_solicitante" name="observacao_solicitante" rows="3" placeholder="Informe detalhes adicionais sobre esta requisição, se necessário"></textarea>
+            </div>
+            <div class="alert alert-info" role="alert">
+                <i class="bi bi-info-circle"></i> Após criar a requisição, você poderá adicionar os itens desejados.
+            </div>
+            <button type="submit" class="btn btn-primary">Criar Requisição</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base/base.html" %}
+{% block title %}Home Solicitante - Sistema de Almoxarifado{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid py-4">
+    <h2 class="mb-4">Bem-vindo(a), {{ usuario.nome }}!</h2>
+
+    <!-- Cards de Acesso Rápido -->
+    <div class="row g-4">
+        <!-- Nova Requisição -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-plus-circle text-success"></i>
+                        Nova Requisição
+                    </h5>
+                    <p class="card-text">Solicite materiais do almoxarifado.</p>
+                    <a href="{{ url_for('requisicao_bp.nova_requisicao') }}" class="btn btn-success">
+                        Solicitar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Minhas Requisições -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-list-check text-primary"></i>
+                        Minhas Requisições
+                    </h5>
+                    <p class="card-text">Acompanhe suas requisições.</p>
+                    <a href="{{ url_for('requisicao_bp.minhas_requisicoes') }}" class="btn btn-primary">
+                        Visualizar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Itens Disponíveis -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-box text-info"></i>
+                        Itens Disponíveis
+                    </h5>
+                    <p class="card-text">Consulte os itens disponíveis no almoxarifado.</p>
+                    <a href="{{ url_for('item_bp.lista_itens') }}" class="btn btn-info text-white">
+                        Consultar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

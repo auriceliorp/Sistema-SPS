@@ -1,0 +1,153 @@
+{% extends "base/base.html" %}
+
+{% block title %}Entradas de Material{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Entradas de Material</h2>
+        <a href="{{ url_for('almoxarifado.entrada.nova_entrada') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Nova Entrada
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="filtro" class="form-label">Filtrar por</label>
+                    <select name="filtro" id="filtro" class="form-select">
+                        <option value="nota" {% if filtro == 'nota' %}selected{% endif %}>Nota Fiscal</option>
+                        <option value="fornecedor" {% if filtro == 'fornecedor' %}selected{% endif %}>Fornecedor</option>
+                        <option value="data" {% if filtro == 'data' %}selected{% endif %}>Data</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="busca" class="form-label">Buscar</label>
+                    <input type="text" name="busca" id="busca" class="form-control" value="{{ busca if busca }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Entradas -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Nota Fiscal</th>
+                            <th>Fornecedor</th>
+                            <th>Valor Total</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entrada in entradas.items %}
+                        <tr>
+                            <td>{{ entrada.data_entrada.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ entrada.numero_nota }}</td>
+                            <td>{{ entrada.fornecedor.nome }}</td>
+                            <td>R$ {{ "%.2f"|format(entrada.valor_total) }}</td>
+                            <td>
+                                <span class="badge {% if entrada.status == 'Finalizada' %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ entrada.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('almoxarifado.entrada.visualizar_entrada', id=entrada.id) }}" 
+                                       class="btn btn-sm btn-info text-white" 
+                                       title="Visualizar">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% if entrada.status != 'Finalizada' %}
+                                    <a href="{{ url_for('almoxarifado.entrada.editar_entrada', id=entrada.id) }}" 
+                                       class="btn btn-sm btn-warning" 
+                                       title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-danger" 
+                                            title="Excluir"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalExcluir{{ entrada.id }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                    <a href="{{ url_for('almoxarifado.entrada.imprimir_entrada', id=entrada.id) }}" 
+                                       class="btn btn-sm btn-secondary" 
+                                       title="Imprimir"
+                                       target="_blank">
+                                        <i class="bi bi-printer"></i>
+                                    </a>
+                                </div>
+
+                                <!-- Modal de Exclusão -->
+                                <div class="modal fade" id="modalExcluir{{ entrada.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirmar Exclusão</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Deseja realmente excluir esta entrada?</p>
+                                                <p><strong>Data:</strong> {{ entrada.data_entrada.strftime('%d/%m/%Y') }}</p>
+                                                <p><strong>Nota Fiscal:</strong> {{ entrada.numero_nota }}</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <form action="{{ url_for('almoxarifado.entrada.excluir_entrada', id=entrada.id) }}" method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-danger">Excluir</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center">Nenhuma entrada encontrada.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            {% if entradas.pages > 1 %}
+            <nav aria-label="Navegação de páginas">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if not entradas.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('almoxarifado.entrada.lista_entradas', page=entradas.prev_num) }}">Anterior</a>
+                    </li>
+                    {% for page_num in entradas.iter_pages() %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == entradas.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('almoxarifado.entrada.lista_entradas', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="page-item {% if not entradas.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('almoxarifado.entrada.lista_entradas', page=entradas.next_num) }}">Próxima</a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

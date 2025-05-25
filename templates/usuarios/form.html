@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {% if usuario %}Editar Usuário{% else %}Novo Usuário{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('usuario_bp.lista_usuarios') }}">Usuários</a></li>
+      <li class="breadcrumb-item active">
+        {% if usuario %}Editar {{ usuario.nome }}{% else %}Novo Usuário{% endif %}
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Cabeçalho -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">
+      <i class="bi bi-person-plus me-2"></i>
+      {% if usuario %}Editar Usuário{% else %}Novo Usuário{% endif %}
+    </h4>
+  </div>
+
+  <!-- Formulário -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {{ form.csrf_token }}
+        
+        <div class="row g-3">
+          <!-- Foto -->
+          <div class="col-12 text-center mb-4">
+            <div class="position-relative d-inline-block">
+              {% if usuario and usuario.foto %}
+              <img src="{{ url_for('static', filename=usuario.foto) }}" 
+                   class="rounded-circle img-thumbnail preview-foto" 
+                   width="150" 
+                   height="150"
+                   alt="Foto do usuário">
+              {% else %}
+              <div class="preview-foto avatar-placeholder rounded-circle bg-secondary text-white" 
+                   style="width: 150px; height: 150px; font-size: 4rem; line-height: 150px;">
+                <i class="bi bi-person"></i>
+              </div>
+              {% endif %}
+              
+              <label for="foto" class="btn btn-sm btn-primary position-absolute bottom-0 end-0">
+                <i class="bi bi-camera"></i>
+              </label>
+              {{ form.foto(class="d-none", accept="image/*") }}
+            </div>
+            {% if form.foto.errors %}
+            <div class="invalid-feedback d-block">
+              {% for error in form.foto.errors %}
+              {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Nome -->
+          <div class="col-md-6">
+            <label for="nome" class="form-label">Nome Completo *</label>
+            {{ form.nome(class="form-control" + (" is-invalid" if form.nome.errors else ""), placeholder="Digite o nome completo") }}
+            {% if form.nome.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.nome.errors %}
+              {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Email -->
+          <div class="col-md-6">
+            <label for="email" class="form-label">E-mail *</label>
+            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="Digite o e-mail") }}
+            {% if form.email.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.email.errors %}
+              {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Senha -->
+          {% if not usuario %}
+          <div class="col-md-6">
+            <label for="senha" class="form-label">Senha *</label>
+            {{ form.senha(class="form-control" + (" is-invalid" if form.senha.errors else ""), placeholder="Digite a senha") }}
+            {% if form.senha.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.senha.errors %}
+              {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Confirmar Senha -->
+          <div class="col-md-6">
+            <label for="confirmar_senha" class="form-label">Confirmar Senha *</label>
+            {{ form.confirmar_senha(class="form-control" + (" is-invalid" if form.confirmar_senha.errors else ""), placeholder="Confirme a senha") }}
+            {% if form.confirmar_senha.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.confirmar_senha.errors %}
+              {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <!-- Setor -->
+          <div class="col-md-6">
+            <label for="setor_id" class="form-label">Setor</label>
+            {{ form.setor_id(class="form-select select2" + (" is-invalid" if form.setor_id.errors else "")) }}
+            {% if form.setor_id.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.setor_id.errors %}
+              {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Cargo -->
+          <div class="col-md-6">
+            <label for="cargo" class="form-label">Cargo</label>
+            {{ form.cargo(class="form-control" + (" is-invalid" if form.cargo.errors else ""), placeholder="Digite o cargo") }}
+            {% if form.cargo.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.cargo.errors %}
+              {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Perfil -->
+          <div class="col-md-6">
+            <label for="perfil" class="form-label">Perfil *</label>
+            {{ form.perfil(class="form-select" + (" is-invalid" if form.perfil.errors else "")) }}
+            {% if form.perfil.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.perfil.errors %}
+              {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Status -->
+          <div class="col-md-6">
+            <label for="ativo" class="form-label">Status</label>
+            <div>
+              {{ form.ativo(class="form-check-input" + (" is-invalid" if form.ativo.errors else "")) }}
+              <label class="form-check-label" for="ativo">Usuário Ativo</label>
+              {% if form.ativo.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.ativo.errors %}
+                {{ error }}
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Permissões -->
+          <div class="col-12">
+            <label class="form-label">Permissões</label>
+            <div class="row g-3">
+              {% for permissao in form.permissoes %}
+              <div class="col-md-4">
+                <div class="form-check">
+                  {{ permissao(class="form-check-input") }}
+                  <label class="form-check-label" for="{{ permissao.id }}">
+                    {{ permissao.label.text }}
+                  </label>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% if form.permissoes.errors %}
+            <div class="invalid-feedback d-block">
+              {% for error in form.permissoes.errors %}
+              {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Botões -->
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <a href="{{ url_for('usuario_bp.lista_usuarios') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-x-lg me-1"></i> Cancelar
+          </a>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i> Salvar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Preview da foto
+  document.getElementById('foto').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.querySelector('.preview-foto');
+        if (preview.tagName === 'IMG') {
+          preview.src = e.target.result;
+        } else {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = 'rounded-circle img-thumbnail preview-foto';
+          img.width = 150;
+          img.height = 150;
+          preview.parentNode.replaceChild(img, preview);
+        }
+      }
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Inicializa Select2
+  $(document).ready(function() {
+    $('.select2').select2({
+      theme: 'bootstrap-5',
+      width: '100%'
+    });
+  });
+
+  // Validação do formulário
+  (function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>
+{% endblock %} 

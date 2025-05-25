@@ -1,0 +1,72 @@
+{% extends 'base_simplificada.html' %}
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>Visualizar Bem Patrimonial</h4>
+    <a href="{{ url_for('patrimonio_bp.editar_bem', id=bem.id) }}" class="btn btn-primary">
+      <i class="bi bi-pencil-square"></i> Editar
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      {% if bem.foto %}
+        <img src="{{ url_for('static', filename=bem.foto[7:] if bem.foto.startswith('static/') else bem.foto) }}"
+             class="img-fluid rounded shadow-sm" alt="Foto do Bem">
+      {% else %}
+        <div class="text-muted fst-italic">Sem foto disponível</div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-8">
+      <dl class="row">
+        <dt class="col-sm-4">Nº Patrimônio UL</dt>
+        <dd class="col-sm-8">{{ bem.numero_ul }}</dd>
+
+        <dt class="col-sm-4">Nº Patrimônio SAP</dt>
+        <dd class="col-sm-8">{{ bem.numero_sap or 'Não informado' }}</dd>
+
+        <dt class="col-sm-4">Nº Patrimônio SIADS</dt>
+        <dd class="col-sm-8">{{ bem.numero_siads or 'Não informado' }}</dd>
+
+        <dt class="col-sm-4">Nome</dt>
+        <dd class="col-sm-8">{{ bem.nome }}</dd>
+
+        <dt class="col-sm-4">Descrição</dt>
+        <dd class="col-sm-8">{{ bem.descricao }}</dd>
+
+        <dt class="col-sm-4">Grupo</dt>
+        <dd class="col-sm-8">{{ bem.grupo_bem }}</dd>
+
+        <dt class="col-sm-4">Classificação Contábil</dt>
+        <dd class="col-sm-8">{{ bem.classificacao_contabil or 'Não informada' }}</dd>
+
+        <dt class="col-sm-4">Detentor</dt>
+        <dd class="col-sm-8">{{ bem.detentor.nome if bem.detentor else 'Não informado' }}</dd>
+
+        <dt class="col-sm-4">Localização</dt>
+        <dd class="col-sm-8">{{ bem.localizacao or 'Não informada' }}</dd>
+
+        <dt class="col-sm-4">Situação</dt>
+        <dd class="col-sm-8">{{ bem.status or 'Não definida' }}</dd>
+
+        <dt class="col-sm-4">Data de Aquisição</dt>
+        <dd class="col-sm-8">{{ bem.data_aquisicao.strftime('%d/%m/%Y') if bem.data_aquisicao else 'Não informada' }}</dd>
+
+        <dt class="col-sm-4">Valor de Aquisição</dt>
+        <dd class="col-sm-8">R$ {{ '%.2f'|format(bem.valor_aquisicao) if bem.valor_aquisicao else 'Não informado' }}</dd>
+
+        <dt class="col-sm-4">Observações</dt>
+        <dd class="col-sm-8">{{ bem.observacoes or 'Nenhuma' }}</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <a href="{{ url_for('patrimonio_bp.listar_bens') }}" class="btn btn-secondary">
+      <i class="bi bi-arrow-left"></i> Voltar à Lista
+    </a>
+  </div>
+</div>
+{% endblock %}
+

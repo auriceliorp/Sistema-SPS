@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('almoxarifado.entrada.lista_entradas') }}">Entradas</a></li>
+            <li class="breadcrumb-item active">{{ 'Editar' if entrada else 'Nova' }} Entrada</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>{{ 'Editar' if entrada else 'Nova' }} Entrada</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" id="formEntrada">
+                {{ form.csrf_token }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.data_entrada.label(class="form-label") }}
+                            {{ form.data_entrada(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.fornecedor.label(class="form-label") }}
+                            {{ form.fornecedor(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.numero_nota.label(class="form-label") }}
+                            {{ form.numero_nota(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.valor_total.label(class="form-label") }}
+                            {{ form.valor_total(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="form-group">
+                            {{ form.observacao.label(class="form-label") }}
+                            {{ form.observacao(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a href="{{ url_for('almoxarifado.entrada.lista_entradas') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#formEntrada').validate({
+            rules: {
+                data_entrada: { required: true },
+                fornecedor: { required: true },
+                numero_nota: { required: true },
+                valor_total: { 
+                    required: true,
+                    number: true,
+                    min: 0
+                }
+            },
+            messages: {
+                data_entrada: "Por favor, informe a data da entrada",
+                fornecedor: "Por favor, selecione o fornecedor",
+                numero_nota: "Por favor, informe o número da nota",
+                valor_total: {
+                    required: "Por favor, informe o valor total",
+                    number: "Por favor, informe um valor válido",
+                    min: "O valor deve ser maior que zero"
+                }
+            }
+        });
+    });
+</script>
+{% endblock %} 

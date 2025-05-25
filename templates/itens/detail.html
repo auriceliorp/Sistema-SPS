@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Item - {{ item.nome }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('item_bp.lista_itens') }}">Itens</a></li>
+      <li class="breadcrumb-item active">{{ item.nome }}</li>
+    </ol>
+  </nav>
+
+  <!-- Cabeçalho -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">
+      <i class="bi bi-box me-2"></i>
+      Detalhes do Item
+    </h4>
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('item_bp.editar_item', id=item.id) }}" class="btn btn-primary">
+        <i class="bi bi-pencil me-1"></i> Editar
+      </a>
+      <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir">
+        <i class="bi bi-trash me-1"></i> Excluir
+      </button>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Informações Básicas -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Informações Básicas</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label text-muted">Código SAP</label>
+              <p class="mb-0">{{ item.codigo_sap or 'Não informado' }}</p>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label text-muted">Código SIADS</label>
+              <p class="mb-0">{{ item.codigo_siads or 'Não informado' }}</p>
+            </div>
+            <div class="col-12">
+              <label class="form-label text-muted">Descrição</label>
+              <p class="mb-0">{{ item.nome }}</p>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label text-muted">Unidade</label>
+              <p class="mb-0">{{ item.unidade }}</p>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label text-muted">Data de Validade</label>
+              <p class="mb-0">{{ item.data_validade.strftime('%d/%m/%Y') if item.data_validade else 'Não informada' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informações de Estoque -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Informações de Estoque</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label text-muted">Estoque Atual</label>
+              <h4 class="mb-0">{{ item.estoque_atual }}</h4>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label text-muted">Estoque Mínimo</label>
+              <h4 class="mb-0">{{ item.estoque_minimo }}</h4>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label text-muted">Valor Unitário</label>
+              <h4 class="mb-0">R$ {{ "%.2f"|format(item.valor_unitario or 0) }}</h4>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label text-muted">Saldo Financeiro</label>
+              <h4 class="mb-0">R$ {{ "%.2f"|format(item.saldo_financeiro or 0) }}</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Classificação -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Classificação</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label text-muted">Grupo</label>
+              <p class="mb-0">{{ item.grupo.nome if item.grupo else 'Não classificado' }}</p>
+            </div>
+            <div class="col-12">
+              <label class="form-label text-muted">Natureza de Despesa</label>
+              <p class="mb-0">
+                {% if item.natureza_despesa %}
+                  {{ item.natureza_despesa.codigo }} - {{ item.natureza_despesa.nome }}
+                {% else %}
+                  Não classificado
+                {% endif %}
+              </p>
+            </div>
+            <div class="col-12">
+              <label class="form-label text-muted">Localização</label>
+              <p class="mb-0">{{ item.localizacao or 'Não informada' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Histórico de Movimentações -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Últimas Movimentações</h5>
+          <a href="#" class="btn btn-sm btn-outline-primary">Ver Todas</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th class="text-end">Quantidade</th>
+                  <th class="text-end">Saldo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for mov in item.movimentacoes[-5:] %}
+                <tr>
+                  <td>{{ mov.data.strftime('%d/%m/%Y') }}</td>
+                  <td>
+                    {% if mov.tipo == 'entrada' %}
+                    <span class="badge bg-success">Entrada</span>
+                    {% else %}
+                    <span class="badge bg-danger">Saída</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">{{ mov.quantidade }}</td>
+                  <td class="text-end">{{ mov.saldo }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="4" class="text-center py-3 text-muted">
+                    Nenhuma movimentação registrada
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Exclusão -->
+<div class="modal fade" id="modalExcluir" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir o item <strong>{{ item.nome }}</strong>?</p>
+        <p class="text-danger mb-0"><small>Esta ação não poderá ser desfeita.</small></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form method="POST" action="{{ url_for('item_bp.excluir_item', id=item.id) }}" class="d-inline">
+          <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

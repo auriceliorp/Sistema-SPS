@@ -1,0 +1,59 @@
+{% extends "base/base.html" %}
+{% block title %}Home Consultor - Sistema de Almoxarifado{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid py-4">
+    <h2 class="mb-4">Bem-vindo(a), {{ usuario.nome }}!</h2>
+
+    <!-- Cards de Acesso Rápido -->
+    <div class="row g-4">
+        <!-- Consulta de Itens -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-search text-primary"></i>
+                        Consulta de Itens
+                    </h5>
+                    <p class="card-text">Pesquise e visualize os itens do almoxarifado.</p>
+                    <a href="{{ url_for('item_bp.lista_itens') }}" class="btn btn-primary">
+                        Consultar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relatórios -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-file-earmark-text text-info"></i>
+                        Relatórios
+                    </h5>
+                    <p class="card-text">Acesse os relatórios do almoxarifado.</p>
+                    <a href="{{ url_for('relatorio_bp.index') }}" class="btn btn-info text-white">
+                        Ver Relatórios
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movimentações -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-arrow-left-right text-success"></i>
+                        Movimentações
+                    </h5>
+                    <p class="card-text">Consulte o histórico de movimentações.</p>
+                    <a href="{{ url_for('movimento_bp.lista_movimentos') }}" class="btn btn-success">
+                        Visualizar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

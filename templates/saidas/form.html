@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('almoxarifado.saida.lista_saidas') }}">Saídas</a></li>
+            <li class="breadcrumb-item active">{{ 'Editar' if saida else 'Nova' }} Saída</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h4>{{ 'Editar' if saida else 'Nova' }} Saída</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" id="formSaida">
+                {{ form.csrf_token }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.data_saida.label(class="form-label") }}
+                            {{ form.data_saida(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.setor.label(class="form-label") }}
+                            {{ form.setor(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.requisitante.label(class="form-label") }}
+                            {{ form.requisitante(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.tipo_saida.label(class="form-label") }}
+                            {{ form.tipo_saida(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="form-group">
+                            {{ form.observacao.label(class="form-label") }}
+                            {{ form.observacao(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a href="{{ url_for('almoxarifado.saida.lista_saidas') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#formSaida').validate({
+            rules: {
+                data_saida: { required: true },
+                setor: { required: true },
+                requisitante: { required: true },
+                tipo_saida: { required: true }
+            },
+            messages: {
+                data_saida: "Por favor, informe a data da saída",
+                setor: "Por favor, selecione o setor",
+                requisitante: "Por favor, informe o requisitante",
+                tipo_saida: "Por favor, selecione o tipo de saída"
+            }
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% from 'auditoria/macros.html' import render_avatar, render_badge_acao, render_breadcrumb, render_empty_state, render_tooltip_scripts %}
+
+{% block title %}Logs de Auditoria{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <!-- Breadcrumb -->
+  {{ render_breadcrumb('lista') }}
+
+  <!-- Título -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">
+      <i class="bi bi-clock-history me-2"></i>
+      Logs de Auditoria
+    </h4>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalFiltros">
+        <i class="bi bi-funnel me-1"></i> Filtros Avançados
+      </button>
+      <button type="button" class="btn btn-outline-primary" onclick="exportarLogs()">
+        <i class="bi bi-download me-1"></i> Exportar
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros Rápidos -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="GET" class="row g-3 align-items-end" id="formFiltros">
+        <div class="col-md-3">
+          <label class="form-label">Usuário</label>
+          <input type="text" class="form-control" name="usuario" value="{{ request.args.get('usuario', '') }}" 
+                 placeholder="Filtrar por usuário">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Ação</label>
+          <select class="form-select" name="acao">
+            <option value="">Todas as ações</option>
+            <option value="criar" {% if request.args.get('acao') == 'criar' %}selected{% endif %}>Criar</option>
+            <option value="editar" {% if request.args.get('acao') == 'editar' %}selected{% endif %}>Editar</option>
+            <option value="excluir" {% if request.args.get('acao') == 'excluir' %}selected{% endif %}>Excluir</option>
+            <option value="visualizar" {% if request.args.get('acao') == 'visualizar' %}selected{% endif %}>Visualizar</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Tabela</label>
+          <select class="form-select" name="tabela">
+            <option value="">Todas as tabelas</option>
+            <option value="usuarios" {% if request.args.get('tabela') == 'usuarios' %}selected{% endif %}>Usuários</option>
+            <option value="itens" {% if request.args.get('tabela') == 'itens' %}selected{% endif %}>Itens</option>
+            <option value="movimentacoes" {% if request.args.get('tabela') == 'movimentacoes' %}selected{% endif %}>Movimentações</option>
+            <option value="setores" {% if request.args.get('tabela') == 'setores' %}selected{% endif %}>Setores</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label d-block">&nbsp;</label>
+          <button class="btn btn-primary w-100" type="submit">
+            <i class="bi bi-search me-1"></i> Buscar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tabela-logs">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 20%;">Data/Hora</th>
+              <th style="width: 20%;">Usuário</th>
+              <th style="width: 15%;">Ação</th>
+              <th style="width: 20%;">Tabela</th>
+              <th style="width: 15%;">ID Registro</th>
+              <th class="text-center" style="width: 10%;">Detalhes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in logs.items %}
+            <tr>
+              <td>{{ log.data_hora.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+              <td>{{ render_avatar(log.usuario) }}</td>
+              <td>{{ render_badge_acao(log.acao) }}</td>
+              <td>{{ log.tabela }}</td>
+              <td>{{ log.registro_id or '-' }}</td>
+              <td class="text-center">
+                <a href="{{ url_for('auditoria_bp.detalhes_log', log_id=log.id) }}" 
+                   class="btn btn-sm btn-outline-info"
+                   data-bs-toggle="tooltip"
+                   title="Visualizar Detalhes">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="6">
+                {{ render_empty_state('Nenhum log encontrado.') }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginação -->
+  {% if logs.pages > 1 %}
+  <nav class="mt-4" aria-label="Paginação">
+    <ul class="pagination justify-content-center">
+      {% if logs.has_prev %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('auditoria_bp.lista_logs', page=logs.prev_num, **request.args) }}">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+      </li>
+      {% endif %}
+
+      {% for page_num in logs.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {% if page_num %}
+          {% if logs.page == page_num %}
+            <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+          {% else %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('auditoria_bp.lista_logs', page=page_num, **request.args) }}">{{ page_num }}</a>
+            </li>
+          {% endif %}
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if logs.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('auditoria_bp.lista_logs', page=logs.next_num, **request.args) }}">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+
+<!-- Modal de Filtros Avançados -->
+<div class="modal fade" id="modalFiltros" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Filtros Avançados</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formFiltrosAvancados" class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Data Inicial</label>
+            <input type="date" class="form-control" name="data_inicial" 
+                   value="{{ request.args.get('data_inicial', '') }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Data Final</label>
+            <input type="date" class="form-control" name="data_final"
+                   value="{{ request.args.get('data_final', '') }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">IP</label>
+            <input type="text" class="form-control" name="ip" 
+                   value="{{ request.args.get('ip', '') }}"
+                   placeholder="Filtrar por IP">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">ID do Registro</label>
+            <input type="text" class="form-control" name="registro_id"
+                   value="{{ request.args.get('registro_id', '') }}"
+                   placeholder="Filtrar por ID do registro">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="aplicarFiltrosAvancados()">
+          Aplicar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ render_tooltip_scripts() }}
+
+<script>
+  // Inicializa a tabela com DataTables
+  $(document).ready(function() {
+    $('#tabela-logs').DataTable({
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json'
+      },
+      pageLength: 25,
+      dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip'
+    });
+  });
+
+  // Função para aplicar filtros avançados
+  function aplicarFiltrosAvancados() {
+    const formFiltros = document.getElementById('formFiltros');
+    const formAvancados = document.getElementById('formFiltrosAvancados');
+    
+    // Combina os dados dos dois formulários
+    const formData = new FormData(formFiltros);
+    const formDataAvancados = new FormData(formAvancados);
+    for (let pair of formDataAvancados.entries()) {
+      if (pair[1]) formData.append(pair[0], pair[1]);
+    }
+    
+    // Constrói a URL com os parâmetros
+    const params = new URLSearchParams(formData);
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
+  }
+
+  // Função para exportar logs
+  function exportarLogs() {
+    const params = new URLSearchParams(window.location.search);
+    params.append('export', 'true');
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
+  }
+</script>
+{% endblock %} 

@@ -1,0 +1,52 @@
+{% extends 'base_simplificada.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h4 class="text-primary mb-4">Organização Administrativa</h4>
+
+  <ul class="nav nav-pills mb-4" id="organizacaoTabs">
+    <li class="nav-item">
+      <a class="nav-link active" href="{{ url_for('nd_bp.lista_nd') }}"
+         onclick="carregarConteudo(this.href); ativarAba(this); return false;">
+         Naturezas de Despesa
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('grupo_bp.lista_grupos') }}"
+         onclick="carregarConteudo(this.href); ativarAba(this); return false;">
+         Grupos
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('area_ul_bp.lista_locais') }}"
+         onclick="carregarConteudo(this.href); ativarAba(this); return false;">
+         Áreas
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('area_ul_bp.lista_uls') }}"
+         onclick="carregarConteudo(this.href); ativarAba(this); return false;">
+         Unidades Locais
+      </a>
+    </li>
+  </ul>
+
+  <div id="conteudo-dinamico">
+    {% include 'partials/nd/lista_nd.html' %}
+  </div>
+</div>
+
+<script>
+function carregarConteudo(url) {
+  fetch(url)
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('conteudo-dinamico').innerHTML = html;
+    });
+}
+
+function ativarAba(elemento) {
+  document.querySelectorAll('#organizacaoTabs .nav-link').forEach(el => el.classList.remove('active'));
+  elemento.classList.add('active');
+}
+</script>
+{% endblock %}

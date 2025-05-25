@@ -1,0 +1,155 @@
+{% extends "base/base.html" %}
+{% block title %}Links Úteis - Sistema de Almoxarifado{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid py-4">
+    <h2 class="mb-4">Links Úteis</h2>
+
+    <!-- Sistemas Internos -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-globe"></i>
+                Sistemas Internos
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">SIADS</h5>
+                            <p class="card-text">Sistema Integrado de Administração de Serviços</p>
+                            <a href="https://siads.comprasnet.gov.br/" class="btn btn-outline-primary" target="_blank">
+                                Acessar SIADS
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">SEI</h5>
+                            <p class="card-text">Sistema Eletrônico de Informações</p>
+                            <a href="https://sei.embrapa.br/" class="btn btn-outline-primary" target="_blank">
+                                Acessar SEI
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">IDEARE</h5>
+                            <p class="card-text">Sistema de Gestão da Programação da Embrapa</p>
+                            <a href="https://sistemas.sede.embrapa.br/ideare/" class="btn btn-outline-primary" target="_blank">
+                                Acessar IDEARE
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documentação -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-file-text"></i>
+                Documentação
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Manual do Usuário</h5>
+                            <p class="card-text">Guia completo de utilização do sistema</p>
+                            <a href="#" class="btn btn-outline-success">
+                                Ver Manual
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Procedimentos</h5>
+                            <p class="card-text">Normas e procedimentos do almoxarifado</p>
+                            <a href="#" class="btn btn-outline-success">
+                                Ver Procedimentos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">FAQ</h5>
+                            <p class="card-text">Perguntas frequentes sobre o sistema</p>
+                            <a href="#" class="btn btn-outline-success">
+                                Ver FAQ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suporte -->
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-headset"></i>
+                Suporte
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Helpdesk</h5>
+                            <p class="card-text">Suporte técnico para o sistema</p>
+                            <a href="mailto:suporte@sistema.com" class="btn btn-outline-info">
+                                Contatar Suporte
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Reportar Problema</h5>
+                            <p class="card-text">Reporte bugs ou problemas encontrados</p>
+                            <a href="#" class="btn btn-outline-info">
+                                Reportar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Sugestões</h5>
+                            <p class="card-text">Envie sugestões de melhorias</p>
+                            <a href="#" class="btn btn-outline-info">
+                                Enviar Sugestão
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

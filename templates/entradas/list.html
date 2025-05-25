@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+            <li class="breadcrumb-item active">Entradas</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>Entradas</h4>
+            <a href="{{ url_for('almoxarifado.entrada.nova_entrada') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nova Entrada
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped" id="tabelaEntradas">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Fornecedor</th>
+                            <th>Nota Fiscal</th>
+                            <th>Valor Total</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entrada in entradas %}
+                        <tr>
+                            <td>{{ entrada.data_entrada.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ entrada.fornecedor.nome }}</td>
+                            <td>{{ entrada.numero_nota }}</td>
+                            <td>R$ {{ "%.2f"|format(entrada.valor_total) }}</td>
+                            <td>
+                                <span class="badge {% if entrada.status == 'Finalizada' %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ entrada.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('almoxarifado.entrada.visualizar_entrada', id=entrada.id) }}" 
+                                   class="btn btn-sm btn-info" title="Visualizar">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if entrada.status != 'Finalizada' %}
+                                <a href="{{ url_for('almoxarifado.entrada.editar_entrada', id=entrada.id) }}" 
+                                   class="btn btn-sm btn-warning" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-sm btn-danger" title="Excluir"
+                                        onclick="confirmarExclusao({{ entrada.id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="modalConfirmacao" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Deseja realmente excluir esta entrada?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="formExclusao" method="POST" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">Confirmar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#tabelaEntradas').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json'
+            },
+            order: [[0, 'desc']]
+        });
+    });
+
+    function confirmarExclusao(id) {
+        $('#formExclusao').attr('action', '/almoxarifado/entrada/excluir/' + id);
+        $('#modalConfirmacao').modal('show');
+    }
+</script>
+{% endblock %} 

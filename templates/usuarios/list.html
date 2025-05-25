@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% block title %}Usuários{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+      <li class="breadcrumb-item active">Usuários</li>
+    </ol>
+  </nav>
+
+  <!-- Cabeçalho -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">
+      <i class="bi bi-people me-2"></i>
+      Usuários do Sistema
+    </h4>
+    {% if current_user.is_admin %}
+    <a href="{{ url_for('usuario_bp.novo_usuario') }}" class="btn btn-primary">
+      <i class="bi bi-person-plus me-1"></i> Novo Usuário
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Card de filtros -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">Filtrar por:</label>
+          <select name="filtro" class="form-select">
+            <option value="nome" {% if filtro == 'nome' %}selected{% endif %}>Nome</option>
+            <option value="email" {% if filtro == 'email' %}selected{% endif %}>E-mail</option>
+            <option value="setor" {% if filtro == 'setor' %}selected{% endif %}>Setor</option>
+            <option value="perfil" {% if filtro == 'perfil' %}selected{% endif %}>Perfil</option>
+          </select>
+        </div>
+        <div class="col-md-7">
+          <label class="form-label">Buscar:</label>
+          <div class="input-group">
+            <input type="text" name="busca" value="{{ busca or '' }}" class="form-control" placeholder="Digite para buscar...">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-search"></i> Buscar
+            </button>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Status:</label>
+          <select name="status" class="form-select">
+            <option value="">Todos</option>
+            <option value="ativo" {% if status == 'ativo' %}selected{% endif %}>Ativos</option>
+            <option value="inativo" {% if status == 'inativo' %}selected{% endif %}>Inativos</option>
+          </select>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tabela-usuarios">
+          <thead class="table-light">
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Setor</th>
+              <th>Perfil</th>
+              <th>Status</th>
+              <th>Último Acesso</th>
+              <th class="text-center" style="width: 140px;">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for usuario in usuarios.items %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar me-2">
+                    {% if usuario.foto %}
+                    <img src="{{ url_for('static', filename=usuario.foto) }}" class="rounded-circle" width="32" height="32">
+                    {% else %}
+                    <div class="avatar-placeholder rounded-circle bg-secondary text-white" style="width: 32px; height: 32px;">
+                      {{ usuario.nome[:1].upper() }}
+                    </div>
+                    {% endif %}
+                  </div>
+                  {{ usuario.nome }}
+                </div>
+              </td>
+              <td>{{ usuario.email }}</td>
+              <td>{{ usuario.setor.nome if usuario.setor else '-' }}</td>
+              <td>
+                {% if usuario.is_admin %}
+                <span class="badge bg-danger">Administrador</span>
+                {% elif usuario.is_gestor %}
+                <span class="badge bg-warning">Gestor</span>
+                {% else %}
+                <span class="badge bg-info">Usuário</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if usuario.ativo %}
+                <span class="badge bg-success">Ativo</span>
+                {% else %}
+                <span class="badge bg-danger">Inativo</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if usuario.ultimo_acesso %}
+                {{ usuario.ultimo_acesso.strftime('%d/%m/%Y %H:%M') }}
+                {% else %}
+                Nunca acessou
+                {% endif %}
+              </td>
+              <td>
+                <div class="d-flex justify-content-center gap-1">
+                  <a href="{{ url_for('usuario_bp.detalhes_usuario', id=usuario.id) }}" 
+                     class="btn btn-sm btn-outline-info" 
+                     data-bs-toggle="tooltip" 
+                     title="Visualizar Detalhes">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                  {% if current_user.is_admin or current_user.id == usuario.id %}
+                  <a href="{{ url_for('usuario_bp.editar_usuario', id=usuario.id) }}" 
+                     class="btn btn-sm btn-outline-primary"
+                     data-bs-toggle="tooltip" 
+                     title="Editar Usuário">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  {% endif %}
+                  {% if current_user.is_admin and current_user.id != usuario.id %}
+                  <button type="button" 
+                          class="btn btn-sm btn-outline-danger"
+                          data-bs-toggle="modal"
+                          data-bs-target="#modalExcluir{{ usuario.id }}"
+                          title="Excluir Usuário">
+                    <i class="bi bi-trash"></i>
+                  </button>
+
+                  <!-- Modal de Confirmação -->
+                  <div class="modal fade" id="modalExcluir{{ usuario.id }}" tabindex="-1">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Confirmar Exclusão</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                          <p>Tem certeza que deseja excluir o usuário <strong>{{ usuario.nome }}</strong>?</p>
+                          <p class="text-danger mb-0"><small>Esta ação não poderá ser desfeita.</small></p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                          <form method="POST" action="{{ url_for('usuario_bp.excluir_usuario', id=usuario.id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="7" class="text-center py-4 text-muted">
+                <i class="bi bi-people display-4 d-block mb-2"></i>
+                Nenhum usuário encontrado.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginação -->
+  {% if usuarios.pages > 1 %}
+  <nav class="mt-4" aria-label="Paginação">
+    <ul class="pagination justify-content-center">
+      {% if usuarios.has_prev %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('usuario_bp.lista_usuarios', page=usuarios.prev_num, filtro=filtro, busca=busca, status=status) }}">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+      </li>
+      {% endif %}
+
+      {% for page_num in usuarios.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {% if page_num %}
+          {% if usuarios.page == page_num %}
+            <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+          {% else %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('usuario_bp.lista_usuarios', page=page_num, filtro=filtro, busca=busca, status=status) }}">{{ page_num }}</a>
+            </li>
+          {% endif %}
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if usuarios.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('usuario_bp.lista_usuarios', page=usuarios.next_num, filtro=filtro, busca=busca, status=status) }}">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+
+{% block scripts %}
+<script>
+  // Inicializa os tooltips
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+
+  // Inicializa a tabela com DataTables
+  $(document).ready(function() {
+    $('#tabela-usuarios').DataTable({
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json'
+      },
+      pageLength: 25,
+      dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip'
+    });
+  });
+</script>
+{% endblock %}
+{% endblock %} 

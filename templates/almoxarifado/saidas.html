@@ -1,0 +1,154 @@
+{% extends "base/base.html" %}
+
+{% block title %}Saídas de Material{% endblock %}
+
+{% block main_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Saídas de Material</h2>
+        <a href="{{ url_for('almoxarifado.saida.nova_saida') }}" class="btn btn-danger">
+            <i class="bi bi-plus-circle"></i> Nova Saída
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="filtro" class="form-label">Filtrar por</label>
+                    <select name="filtro" id="filtro" class="form-select">
+                        <option value="setor" {% if filtro == 'setor' %}selected{% endif %}>Setor</option>
+                        <option value="requisitante" {% if filtro == 'requisitante' %}selected{% endif %}>Requisitante</option>
+                        <option value="data" {% if filtro == 'data' %}selected{% endif %}>Data</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="busca" class="form-label">Buscar</label>
+                    <input type="text" name="busca" id="busca" class="form-control" value="{{ busca if busca }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Saídas -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Setor</th>
+                            <th>Requisitante</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for saida in saidas.items %}
+                        <tr>
+                            <td>{{ saida.data_saida.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ saida.setor.nome }}</td>
+                            <td>{{ saida.requisitante }}</td>
+                            <td>{{ saida.tipo_saida }}</td>
+                            <td>
+                                <span class="badge {% if saida.status == 'Finalizada' %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ saida.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('almoxarifado.saida.visualizar_saida', id=saida.id) }}" 
+                                       class="btn btn-sm btn-info text-white" 
+                                       title="Visualizar">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    {% if saida.status != 'Finalizada' %}
+                                    <a href="{{ url_for('almoxarifado.saida.editar_saida', id=saida.id) }}" 
+                                       class="btn btn-sm btn-warning" 
+                                       title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-danger" 
+                                            title="Excluir"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalExcluir{{ saida.id }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                    <a href="{{ url_for('almoxarifado.saida.imprimir_saida', id=saida.id) }}" 
+                                       class="btn btn-sm btn-secondary" 
+                                       title="Imprimir"
+                                       target="_blank">
+                                        <i class="bi bi-printer"></i>
+                                    </a>
+                                </div>
+
+                                <!-- Modal de Exclusão -->
+                                <div class="modal fade" id="modalExcluir{{ saida.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirmar Exclusão</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Deseja realmente excluir esta saída?</p>
+                                                <p><strong>Data:</strong> {{ saida.data_saida.strftime('%d/%m/%Y') }}</p>
+                                                <p><strong>Setor:</strong> {{ saida.setor.nome }}</p>
+                                                <p><strong>Requisitante:</strong> {{ saida.requisitante }}</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <form action="{{ url_for('almoxarifado.saida.excluir_saida', id=saida.id) }}" method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-danger">Excluir</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center">Nenhuma saída encontrada.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            {% if saidas.pages > 1 %}
+            <nav aria-label="Navegação de páginas">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if not saidas.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('almoxarifado.saida.lista_saidas', page=saidas.prev_num) }}">Anterior</a>
+                    </li>
+                    {% for page_num in saidas.iter_pages() %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == saidas.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('almoxarifado.saida.lista_saidas', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="page-item {% if not saidas.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('almoxarifado.saida.lista_saidas', page=saidas.next_num) }}">Próxima</a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
